@@ -20,6 +20,7 @@ MessageDefinition msgDef = MessageDefinition.newBuilder("Person") // message Per
 		.addField("required", "string", "name", 2)	// required string name = 2
 		.addField("optional", "string", "email", 3)	// optional string email = 3
 		.build();
+
 schemaBuilder.addMessageDefinition(msgDef);
 DynamicSchema schema = schemaBuilder.build();
 
