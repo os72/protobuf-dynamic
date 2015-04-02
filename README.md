@@ -34,3 +34,12 @@ msgBuilder.setField(msgDesc.findFieldByName("name"), "Alan Turing");
 msgBuilder.setField(msgDesc.findFieldByName("email"), "at@sis.gov.uk");
 DynamicMessage msg = msgBuilder.build();
 ```
+
+#### Maven dependency
+```xml
+<dependency>
+  <groupId>com.github.os72</groupId>
+  <artifactId>protobuf-dynamic</artifactId>
+  <version>0.1-SNAPSHOT</version>
+</dependency>
+```
