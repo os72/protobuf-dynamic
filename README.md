@@ -26,7 +26,8 @@ DynamicSchema schema = schemaBuilder.build();
 // Create dynamic message from schema
 DynamicMessage.Builder msgBuilder = schema.newMessageBuilder("Person");
 Descriptor msgDesc = msgBuilder.getDescriptorForType();
-DynamicMessage msg = msgBuilder.setField(msgDesc.findFieldByName("id"), 1)
+DynamicMessage msg = msgBuilder
+		.setField(msgDesc.findFieldByName("id"), 1)
 		.setField(msgDesc.findFieldByName("name"), "Alan Turing")
 		.setField(msgDesc.findFieldByName("email"), "at@sis.gov.uk")
 		.build();
