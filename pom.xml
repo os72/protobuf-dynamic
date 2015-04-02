@@ -1,0 +1,130 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.github.os72</groupId>
+  <artifactId>protobuf-dynamic</artifactId>
+  <packaging>jar</packaging>
+  <version>0.1-SNAPSHOT</version>
+  <name>protobuf-dynamic</name>
+  <url>https://github.com/os72/protobuf-dynamic</url>
+  <description>Protocol Buffers Dynamic Schema</description>
+
+  <parent>
+	<groupId>org.sonatype.oss</groupId>
+	<artifactId>oss-parent</artifactId>
+	<version>9</version>
+  </parent>
+
+  <licenses>
+	<license>
+	  <name>The Apache Software License, Version 2.0</name>
+	  <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	  <distribution>repo</distribution>
+	</license>
+  </licenses>
+
+  <developers>
+	<developer>
+	  <id>os72</id>
+	  <name>Oliver Suciu</name>
+	</developer>
+  </developers>
+
+  <scm>
+	<connection>scm:git:git@github.com:os72/protobuf-dynamic.git</connection>
+	<developerConnection>scm:git:git@github.com:os72/protobuf-dynamic.git</developerConnection>
+	<url>git@github.com:os72/protobuf-dynamic.git</url>
+  </scm>
+
+  <dependencies>
+	<!-- compile -->
+	<dependency>
+		<groupId>com.google.protobuf</groupId>
+		<artifactId>protobuf-java</artifactId>
+		<version>2.4.1</version>
+	</dependency>
+
+    <!-- test -->
+	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>4.12</version>
+		<scope>test</scope>
+	</dependency>
+  </dependencies>
+
+  <build>
+	<plugins>
+		<plugin>
+			<groupId>com.github.os72</groupId>
+			<artifactId>protoc-jar-maven-plugin</artifactId>
+			<version>2.4.1.4</version> <!-- for protobuf 2.4.1 -->
+			<executions>
+				<execution>
+					<phase>generate-test-sources</phase>
+					<goals>
+						<goal>run</goal>
+					</goals>
+					<configuration>
+						<includeDirectories>
+							<include>src/test/resources</include>
+						</includeDirectories>
+						<inputDirectories>
+							<include>src/test/resources</include>
+						</inputDirectories>
+						<outputTargets>
+							<outputTarget>
+								<type>java</type>
+								<addSources>none</addSources>
+								<outputDirectory>src/test/java</outputDirectory>
+							</outputTarget>
+							<outputTarget>
+								<type>descriptor</type>
+								<addSources>none</addSources>
+								<outputDirectory>src/test/resources</outputDirectory>
+							</outputTarget>
+						</outputTargets>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-jar-plugin</artifactId>
+		  <configuration>
+			<archive>
+			  <manifestEntries>
+				<Build-Id>${project.name}-${project.version}-${maven.build.timestamp}</Build-Id>
+			  </manifestEntries>
+			</archive>
+		  </configuration>
+		</plugin>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-source-plugin</artifactId>
+		  <executions>
+			<execution>
+			  <id>attach-sources</id>
+				<goals>
+				 <goal>jar</goal>
+				</goals>
+			</execution>
+		  </executions>
+		</plugin>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-javadoc-plugin</artifactId>
+		  <executions>
+			<execution>
+			  <id>attach-javadoc</id>
+				<goals>
+				 <goal>jar</goal>
+				</goals>
+			</execution>
+		  </executions>
+		</plugin>
+	</plugins>
+  </build>
+
+</project>
