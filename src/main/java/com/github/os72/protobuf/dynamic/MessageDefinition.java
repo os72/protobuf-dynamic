@@ -70,6 +70,11 @@ public class MessageDefinition
 			return this;
 		}
 
+		public Builder addMessageDefinition(MessageDefinition def) {
+			mMsgTypeBuilder.addNestedType(def.getMsgType());
+			return this;
+		}
+
 		public MessageDefinition build() {
 			return new MessageDefinition(mMsgTypeBuilder.build());
 		}

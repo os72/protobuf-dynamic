@@ -19,9 +19,11 @@ package com.github.os72.protobuf.dynamic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.google.protobuf.DescriptorProtos;
+import com.google.protobuf.DescriptorProtos.DescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
 import com.google.protobuf.DescriptorProtos.FileOptions;
@@ -85,10 +87,11 @@ public class DynamicSchema
 	 * Creates a new dynamic message builder for the given message name
 	 * 
 	 * @param msgName the message name
-	 * @return the message builder
+	 * @return the message builder (null if message name not found)
 	 */
 	public DynamicMessage.Builder newMessageBuilder(String msgName) {
-		Descriptor type = mFileDesc.findMessageTypeByName(msgName);
+		Descriptor type = mDescriptorMap.get(msgName);
+		if (type == null) return null;
 		return DynamicMessage.newBuilder(type);
 	}
 
@@ -96,10 +99,10 @@ public class DynamicSchema
 	 * Gets the protobuf message descriptor for the given message name
 	 * 
 	 * @param msgName the message name
-	 * @return the message descriptor
+	 * @return the message descriptor (null if message name not found)
 	 */
 	public Descriptor getMessageDescriptor(String msgName) {
-		return mFileDesc.findMessageTypeByName(msgName);
+		return mDescriptorMap.get(msgName);
 	}
 
 	/**
@@ -121,7 +124,7 @@ public class DynamicSchema
 	 */
 	public String toString() {
 		// TODO: full descriptorSet
-		return mFileDesc.toProto().toString();
+		return "types: " + mDescriptorMap.keySet() + "\n" + mFileDesc.toProto().toString();
 	}
 
 	/**
@@ -131,14 +134,22 @@ public class DynamicSchema
 	 * @throws DescriptorValidationException
 	 */
 	private DynamicSchema(FileDescriptorProto fileDescProto) throws DescriptorValidationException {
+		// TODO: full descriptorSet
 		mFileDesc = FileDescriptor.buildFrom(fileDescProto, new FileDescriptor[0]);
+		for (Descriptor msgType : mFileDesc.getMessageTypes()) addMessageType(msgType, null);
+	}
+
+	private void addMessageType(Descriptor msgType, String scope) {
+		String msgName = (scope == null ? msgType.getName() : scope + "." + msgType.getName());
+		mDescriptorMap.put(msgName, msgType);
+		for (Descriptor nestedType : msgType.getNestedTypes()) addMessageType(nestedType, msgName);
 	}
 
 	private FileDescriptor mFileDesc;
 
 	// TODO: hold fdSet, descriptorMap
 	private DescriptorProtos.FileDescriptorSet mFdSet;
-	private Map<String,Descriptor> mDescriptorMap;
+	private Map<String,Descriptor> mDescriptorMap = new HashMap<String,Descriptor>();
 
 	/**
 	 * DynamicSchema.Builder

@@ -28,6 +28,8 @@ public class DynamicSchemaTest
 {
 	@Test
 	public void testDynamicSchema() throws Exception {
+		log("--- testDynamicSchema ---");
+		
 		// Create dynamic schema
 		DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
 		schemaBuilder.setName("PersonSchemaDynamic.proto");
@@ -64,7 +66,51 @@ public class DynamicSchemaTest
 	}
 
 	@Test
+	public void testMessageDefinition() throws Exception {
+		log("--- testMessageDefinition ---");
+		
+		// Create dynamic schema
+		DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
+		schemaBuilder.setName("PersonSchemaDynamic.proto");
+		
+		MessageDefinition msgDefPhoneNumber = MessageDefinition.newBuilder("PhoneNumber") // message PhoneNumber
+				.addField("required", "string", "number", 1) // required string number = 1
+				.build();
+		
+		MessageDefinition msgDefPerson = MessageDefinition.newBuilder("Person") // message Person
+				.addMessageDefinition(msgDefPhoneNumber)			// message PhoneNumber (nested)
+				.addField("required", "int32", "id", 1)				// required int32 id = 1
+				.addField("required", "string", "name", 2)			// required string name = 2
+				.addField("optional", "string", "email", 3)			// optional string email = 3
+				.addField("repeated", "PhoneNumber", "phone", 4)	// repeated PhoneNumber phone = 4
+				.build();
+		
+		schemaBuilder.addMessageDefinition(msgDefPerson);
+		DynamicSchema schema = schemaBuilder.build();
+		log(schema);
+		
+		// Create dynamic message from schema
+		DynamicMessage.Builder phoneBuilder = schema.newMessageBuilder("Person.PhoneNumber");
+		Descriptor phoneDesc = phoneBuilder.getDescriptorForType();
+		DynamicMessage phoneMsg = phoneBuilder
+				.setField(phoneDesc.findFieldByName("number"), "+44-000-000-000")
+				.build();
+		
+		DynamicMessage.Builder personBuilder = schema.newMessageBuilder("Person");
+		Descriptor personDesc = personBuilder.getDescriptorForType();
+		DynamicMessage personMsg = personBuilder
+				.setField(personDesc.findFieldByName("id"), 1)
+				.setField(personDesc.findFieldByName("name"), "Alan Turing")
+				.setField(personDesc.findFieldByName("email"), "at@sis.gov.uk")
+				.addRepeatedField(personDesc.findFieldByName("phone"), phoneMsg)
+				.build();
+		log(personMsg);
+	}
+
+	@Test
 	public void testSchemaSerialization() throws Exception {
+		log("--- testSchemaSerialization ---");
+		
 		// deserialize
 		DynamicSchema schema1 = DynamicSchema.parseFrom(new FileInputStream("src/test/resources/PersonSchema.desc"));
 		log(schema1);
