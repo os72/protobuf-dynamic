@@ -51,22 +51,12 @@ public class MessageDefinition
 	public static class Builder
 	{
 		public Builder addField(String label, String type, String name, int num) {
+			return addField(label, type, name, num, null);
+		}
+		public Builder addField(String label, String type, String name, int num, String defaultVal) {
 			FieldDescriptorProto.Label protoLabel = sLabelMap.get(label);
 			if (protoLabel == null) throw new IllegalArgumentException("Illegal label: " + label);
-			addField(protoLabel, type, name, num);
-			return this;
-		}
-
-		public Builder addOptionalField(String type, String name, int num) {
-			addField(FieldDescriptorProto.Label.LABEL_OPTIONAL, type, name, num);
-			return this;
-		}
-		public Builder addRequiredField(String type, String name, int num) {
-			addField(FieldDescriptorProto.Label.LABEL_REQUIRED, type, name, num);
-			return this;
-		}
-		public Builder addRepeatedField(String type, String name, int num) {
-			addField(FieldDescriptorProto.Label.LABEL_REPEATED, type, name, num);
+			addField(protoLabel, type, name, num, defaultVal);
 			return this;
 		}
 
@@ -84,13 +74,14 @@ public class MessageDefinition
 			mMsgTypeBuilder.setName(msgName);
 		}
 
-		private void addField(FieldDescriptorProto.Label label, String type, String name, int num) {
+		private void addField(FieldDescriptorProto.Label label, String type, String name, int num, String defaultVal) {
 			FieldDescriptorProto.Builder fieldBuilder = FieldDescriptorProto.newBuilder();
 			fieldBuilder.setLabel(label);
 			FieldDescriptorProto.Type primType = sTypeMap.get(type);
 			if (primType != null) fieldBuilder.setType(primType); else fieldBuilder.setTypeName(type);
 			fieldBuilder.setName(name);
 			fieldBuilder.setNumber(num);
+			if (defaultVal != null) fieldBuilder.setDefaultValue(defaultVal);
 			mMsgTypeBuilder.addField(fieldBuilder.build());
 		}
 
