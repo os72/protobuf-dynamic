@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.junit.Assert;
 
 import com.google.protobuf.Descriptors.Descriptor;
+import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.DynamicMessage;
 
 public class DynamicSchemaTest
@@ -73,11 +74,19 @@ public class DynamicSchemaTest
 		DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
 		schemaBuilder.setName("PersonSchemaDynamic.proto");
 		
+		EnumDefinition enumDefPhoneType = EnumDefinition.newBuilder("PhoneType") // enum PhoneType
+				.addValue("MOBILE", 0)	// MOBILE = 0
+				.addValue("HOME", 1)	// HOME = 1
+				.addValue("WORK", 2)	// WORK = 2
+				.build();
+		
 		MessageDefinition msgDefPhoneNumber = MessageDefinition.newBuilder("PhoneNumber") // message PhoneNumber
-				.addField("required", "string", "number", 1) // required string number = 1
+				.addField("required", "string", "number", 1)			// required string number = 1
+				.addField("optional", "PhoneType", "type", 2, "HOME")	// optional PhoneType type = 2 [default = HOME]
 				.build();
 		
 		MessageDefinition msgDefPerson = MessageDefinition.newBuilder("Person") // message Person
+				.addEnumDefinition(enumDefPhoneType)				// enum PhoneType (nested)
 				.addMessageDefinition(msgDefPhoneNumber)			// message PhoneNumber (nested)
 				.addField("required", "int32", "id", 1)				// required int32 id = 1
 				.addField("required", "string", "name", 2)			// required string name = 2
@@ -90,21 +99,36 @@ public class DynamicSchemaTest
 		log(schema);
 		
 		// Create dynamic message from schema
-		DynamicMessage.Builder phoneBuilder = schema.newMessageBuilder("Person.PhoneNumber");
-		Descriptor phoneDesc = phoneBuilder.getDescriptorForType();
-		DynamicMessage phoneMsg = phoneBuilder
-				.setField(phoneDesc.findFieldByName("number"), "+44-000-000-000")
+		Descriptor phoneDesc = schema.getMessageDescriptor("Person.PhoneNumber");
+		DynamicMessage phoneMsg1 = schema.newMessageBuilder("Person.PhoneNumber")
+				.setField(phoneDesc.findFieldByName("number"), "+44-111")
+				.build();
+		DynamicMessage phoneMsg2 = schema.newMessageBuilder("Person.PhoneNumber")
+				.setField(phoneDesc.findFieldByName("number"), "+44-222")
+				.setField(phoneDesc.findFieldByName("type"), schema.getEnum("Person.PhoneType", "WORK"))
 				.build();
 		
-		DynamicMessage.Builder personBuilder = schema.newMessageBuilder("Person");
-		Descriptor personDesc = personBuilder.getDescriptorForType();
-		DynamicMessage personMsg = personBuilder
+		Descriptor personDesc = schema.getMessageDescriptor("Person");
+		DynamicMessage personMsg = schema.newMessageBuilder("Person")
 				.setField(personDesc.findFieldByName("id"), 1)
 				.setField(personDesc.findFieldByName("name"), "Alan Turing")
 				.setField(personDesc.findFieldByName("email"), "at@sis.gov.uk")
-				.addRepeatedField(personDesc.findFieldByName("phone"), phoneMsg)
+				.addRepeatedField(personDesc.findFieldByName("phone"), phoneMsg1)
+				.addRepeatedField(personDesc.findFieldByName("phone"), phoneMsg2)
 				.build();
 		log(personMsg);
+		
+		phoneMsg1 = (DynamicMessage)personMsg.getRepeatedField(personDesc.findFieldByName("phone"), 0);
+		phoneMsg2 = (DynamicMessage)personMsg.getRepeatedField(personDesc.findFieldByName("phone"), 1);
+		
+		String phoneNumber1 = (String)phoneMsg1.getField(phoneDesc.findFieldByName("number"));
+		EnumValueDescriptor phoneType1 = (EnumValueDescriptor)phoneMsg1.getField(phoneDesc.findFieldByName("type"));
+		
+		String phoneNumber2 = (String)phoneMsg2.getField(phoneDesc.findFieldByName("number"));
+		EnumValueDescriptor phoneType2 = (EnumValueDescriptor)phoneMsg2.getField(phoneDesc.findFieldByName("type"));
+		
+		log(phoneNumber1 + ", " + phoneType1.getName());
+		log(phoneNumber2 + ", " + phoneType2.getName());
 	}
 
 	@Test

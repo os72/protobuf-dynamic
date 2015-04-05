@@ -22,16 +22,14 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.protobuf.DescriptorProtos;
-import com.google.protobuf.DescriptorProtos.DescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
-import com.google.protobuf.DescriptorProtos.FileOptions;
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Descriptors.DescriptorValidationException;
+import com.google.protobuf.Descriptors.EnumDescriptor;
+import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.DynamicMessage;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * DynamicSchema
@@ -57,7 +55,7 @@ public class DynamicSchema
 	 */
 	public static DynamicSchema parseFrom(byte[] schemaDescBuf) throws DescriptorValidationException, IOException {
 		// TODO: hold full fdSet, resolve dependencies, populate descriptorMap
-		DescriptorProtos.FileDescriptorSet fdSet = DescriptorProtos.FileDescriptorSet.parseFrom(schemaDescBuf);
+		FileDescriptorSet fdSet = FileDescriptorSet.parseFrom(schemaDescBuf);
 		FileDescriptorProto fileDescProto = fdSet.getFileList().get(0);
 		return new DynamicSchema(fileDescProto);
 	}
@@ -86,23 +84,29 @@ public class DynamicSchema
 	/**
 	 * Creates a new dynamic message builder for the given message name
 	 * 
-	 * @param msgName the message name
+	 * @param msgTypeName the message type name
 	 * @return the message builder (null if message name not found)
 	 */
-	public DynamicMessage.Builder newMessageBuilder(String msgName) {
-		Descriptor type = mDescriptorMap.get(msgName);
-		if (type == null) return null;
-		return DynamicMessage.newBuilder(type);
+	public DynamicMessage.Builder newMessageBuilder(String msgTypeName) {
+		Descriptor msgType = mMsgDescriptorMap.get(msgTypeName);
+		if (msgType == null) return null;
+		return DynamicMessage.newBuilder(msgType);
+	}
+
+	public EnumValueDescriptor getEnum(String enumTypeName, String enumName) {
+		EnumDescriptor enumType = mEnumDescriptorMap.get(enumTypeName);
+		if (enumType == null) return null;
+		return enumType.findValueByName(enumName);
 	}
 
 	/**
 	 * Gets the protobuf message descriptor for the given message name
 	 * 
-	 * @param msgName the message name
+	 * @param msgTypeName the message type name
 	 * @return the message descriptor (null if message name not found)
 	 */
-	public Descriptor getMessageDescriptor(String msgName) {
-		return mDescriptorMap.get(msgName);
+	public Descriptor getMessageDescriptor(String msgTypeName) {
+		return mMsgDescriptorMap.get(msgTypeName);
 	}
 
 	/**
@@ -112,7 +116,7 @@ public class DynamicSchema
 	 */
 	public byte[] toByteArray() {
 		// TODO: full descriptorSet
-		DescriptorProtos.FileDescriptorSet.Builder fdSetBuilder = DescriptorProtos.FileDescriptorSet.newBuilder();
+		FileDescriptorSet.Builder fdSetBuilder = FileDescriptorSet.newBuilder();
 		fdSetBuilder.addFile(mFileDesc.toProto());
 		return fdSetBuilder.build().toByteArray();
 	}
@@ -124,7 +128,8 @@ public class DynamicSchema
 	 */
 	public String toString() {
 		// TODO: full descriptorSet
-		return "types: " + mDescriptorMap.keySet() + "\n" + mFileDesc.toProto().toString();
+		return "types: " + mMsgDescriptorMap.keySet() + " enums: " + mEnumDescriptorMap.keySet() + "\n"
+				+ mFileDesc.toProto().toString();
 	}
 
 	/**
@@ -140,16 +145,23 @@ public class DynamicSchema
 	}
 
 	private void addMessageType(Descriptor msgType, String scope) {
-		String msgName = (scope == null ? msgType.getName() : scope + "." + msgType.getName());
-		mDescriptorMap.put(msgName, msgType);
-		for (Descriptor nestedType : msgType.getNestedTypes()) addMessageType(nestedType, msgName);
+		String msgTypeName = (scope == null ? msgType.getName() : scope + "." + msgType.getName());
+		mMsgDescriptorMap.put(msgTypeName, msgType);
+		for (Descriptor nestedType : msgType.getNestedTypes()) addMessageType(nestedType, msgTypeName);
+		for (EnumDescriptor enumType : msgType.getEnumTypes()) addEnumType(enumType, msgTypeName);
 	}
 
-	private FileDescriptor mFileDesc;
+	private void addEnumType(EnumDescriptor enumType, String scope) {
+		String enumTypeName = (scope == null ? enumType.getName() : scope + "." + enumType.getName());
+		mEnumDescriptorMap.put(enumTypeName, enumType);
+	}
 
-	// TODO: hold fdSet, descriptorMap
-	private DescriptorProtos.FileDescriptorSet mFdSet;
-	private Map<String,Descriptor> mDescriptorMap = new HashMap<String,Descriptor>();
+	// TODO: full descriptorSet
+	private FileDescriptor mFileDesc;
+	private FileDescriptorSet mFileDescSet;
+
+	private Map<String,Descriptor> mMsgDescriptorMap = new HashMap<String,Descriptor>();
+	private Map<String,EnumDescriptor> mEnumDescriptorMap = new HashMap<String,EnumDescriptor>();
 
 	/**
 	 * DynamicSchema.Builder
@@ -176,8 +188,13 @@ public class DynamicSchema
 			return this;
 		}
 
-		public Builder addMessageDefinition(MessageDefinition def) {
-			mFileDescProtoBuilder.addMessageType(def.getMsgType());
+		public Builder addMessageDefinition(MessageDefinition msgDef) {
+			mFileDescProtoBuilder.addMessageType(msgDef.getMsgType());
+			return this;
+		}
+
+		public Builder addEnumDefinition(EnumDefinition enumDef) {
+			mFileDescProtoBuilder.addEnumType(enumDef.getEnumType());
 			return this;
 		}
 

@@ -60,8 +60,13 @@ public class MessageDefinition
 			return this;
 		}
 
-		public Builder addMessageDefinition(MessageDefinition def) {
-			mMsgTypeBuilder.addNestedType(def.getMsgType());
+		public Builder addMessageDefinition(MessageDefinition msgDef) {
+			mMsgTypeBuilder.addNestedType(msgDef.getMsgType());
+			return this;
+		}
+
+		public Builder addEnumDefinition(EnumDefinition enumDef) {
+			mMsgTypeBuilder.addEnumType(enumDef.getEnumType());
 			return this;
 		}
 
@@ -79,8 +84,7 @@ public class MessageDefinition
 			fieldBuilder.setLabel(label);
 			FieldDescriptorProto.Type primType = sTypeMap.get(type);
 			if (primType != null) fieldBuilder.setType(primType); else fieldBuilder.setTypeName(type);
-			fieldBuilder.setName(name);
-			fieldBuilder.setNumber(num);
+			fieldBuilder.setName(name).setNumber(num);
 			if (defaultVal != null) fieldBuilder.setDefaultValue(defaultVal);
 			mMsgTypeBuilder.addField(fieldBuilder.build());
 		}
