@@ -27,9 +27,12 @@ import com.google.protobuf.DynamicMessage;
 
 public class DynamicSchemaTest
 {
+	/**
+	 * testBasic - basic usage
+	 */
 	@Test
-	public void testDynamicSchema() throws Exception {
-		log("--- testDynamicSchema ---");
+	public void testBasic() throws Exception {
+		log("--- testBasic ---");
 		
 		// Create dynamic schema
 		DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
@@ -66,9 +69,12 @@ public class DynamicSchemaTest
 		Assert.assertEquals(person.toString(), msg.toString());
 	}
 
+	/**
+	 * testAdvanced - nested messages, enums, default values, repeated fields
+	 */
 	@Test
-	public void testMessageDefinition() throws Exception {
-		log("--- testMessageDefinition ---");
+	public void testAdvanced() throws Exception {
+		log("--- testAdvanced ---");
 		
 		// Create dynamic schema
 		DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
@@ -129,8 +135,17 @@ public class DynamicSchemaTest
 		
 		log(phoneNumber1 + ", " + phoneType1.getName());
 		log(phoneNumber2 + ", " + phoneType2.getName());
+		
+		Assert.assertEquals("+44-111", phoneNumber1);
+		Assert.assertEquals("HOME", phoneType1.getName()); // [default = HOME]
+		
+		Assert.assertEquals("+44-222", phoneNumber2);
+		Assert.assertEquals("WORK", phoneType2.getName());
 	}
 
+	/**
+	 * testSchemaSerialization - serialization, deserialization, protoc output parsing 
+	 */
 	@Test
 	public void testSchemaSerialization() throws Exception {
 		log("--- testSchemaSerialization ---");

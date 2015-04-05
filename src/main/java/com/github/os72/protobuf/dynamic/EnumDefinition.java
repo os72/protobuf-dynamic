@@ -24,18 +24,26 @@ import com.google.protobuf.DescriptorProtos.EnumValueDescriptorProto;
  */
 public class EnumDefinition
 {
+	// --- public static ---
+
 	public static Builder newBuilder(String enumName) {
 		return new Builder(enumName);
 	}
+
+	// --- public ---
 
 	public String toString() {
 		return mEnumType.toString();
 	}
 
+	// --- package ---
+
 	EnumDescriptorProto getEnumType() {
 		return mEnumType;
 	}
 	
+	// --- private ---
+
 	private EnumDefinition(EnumDescriptorProto enumType) {
 		mEnumType = enumType;
 	}
@@ -47,6 +55,8 @@ public class EnumDefinition
 	 */
 	public static class Builder
 	{
+		// --- public ---
+
 		public Builder addValue(String name, int num) {
 			EnumValueDescriptorProto.Builder enumValBuilder = EnumValueDescriptorProto.newBuilder();
 			enumValBuilder.setName(name).setNumber(num);
@@ -57,6 +67,8 @@ public class EnumDefinition
 		public EnumDefinition build() {
 			return new EnumDefinition(mEnumTypeBuilder.build());
 		}
+
+		// --- private ---
 
 		private Builder(String enumName) {
 			mEnumTypeBuilder = EnumDescriptorProto.newBuilder();

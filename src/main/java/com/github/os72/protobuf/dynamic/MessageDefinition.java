@@ -27,18 +27,26 @@ import com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
  */
 public class MessageDefinition
 {
-	public static Builder newBuilder(String msgName) {
-		return new Builder(msgName);
+	// --- public static ---
+
+	public static Builder newBuilder(String msgTypeName) {
+		return new Builder(msgTypeName);
 	}
+
+	// --- public ---
 
 	public String toString() {
 		return mMsgType.toString();
 	}
 
-	DescriptorProto getMsgType() {
+	// --- package ---
+
+	DescriptorProto getMessageType() {
 		return mMsgType;
 	}
-	
+
+	// --- private ---
+
 	private MessageDefinition(DescriptorProto msgType) {
 		mMsgType = msgType;
 	}
@@ -50,6 +58,8 @@ public class MessageDefinition
 	 */
 	public static class Builder
 	{
+		// --- public ---
+
 		public Builder addField(String label, String type, String name, int num) {
 			return addField(label, type, name, num, null);
 		}
@@ -61,7 +71,7 @@ public class MessageDefinition
 		}
 
 		public Builder addMessageDefinition(MessageDefinition msgDef) {
-			mMsgTypeBuilder.addNestedType(msgDef.getMsgType());
+			mMsgTypeBuilder.addNestedType(msgDef.getMessageType());
 			return this;
 		}
 
@@ -74,9 +84,11 @@ public class MessageDefinition
 			return new MessageDefinition(mMsgTypeBuilder.build());
 		}
 
-		private Builder(String msgName) {
+		// --- private ---
+
+		private Builder(String msgTypeName) {
 			mMsgTypeBuilder = DescriptorProto.newBuilder();
-			mMsgTypeBuilder.setName(msgName);
+			mMsgTypeBuilder.setName(msgTypeName);
 		}
 
 		private void addField(FieldDescriptorProto.Label label, String type, String name, int num, String defaultVal) {
@@ -92,7 +104,11 @@ public class MessageDefinition
 		private DescriptorProto.Builder mMsgTypeBuilder;
 	}
 
+	// --- private static ---
+
 	private static Map<String,FieldDescriptorProto.Type> sTypeMap;
+	private static Map<String,FieldDescriptorProto.Label> sLabelMap;
+
 	static {
 		sTypeMap = new HashMap<String,FieldDescriptorProto.Type>();
 		sTypeMap.put("double", FieldDescriptorProto.Type.TYPE_DOUBLE);
@@ -113,10 +129,7 @@ public class MessageDefinition
 		//sTypeMap.put("enum", FieldDescriptorProto.Type.TYPE_ENUM);
 		//sTypeMap.put("message", FieldDescriptorProto.Type.TYPE_MESSAGE);
 		//sTypeMap.put("group", FieldDescriptorProto.Type.TYPE_GROUP);
-	}
-
-	private static Map<String,FieldDescriptorProto.Label> sLabelMap;
-	static {
+		
 		sLabelMap = new HashMap<String,FieldDescriptorProto.Label>();
 		sLabelMap.put("optional", FieldDescriptorProto.Label.LABEL_OPTIONAL);
 		sLabelMap.put("required", FieldDescriptorProto.Label.LABEL_REQUIRED);

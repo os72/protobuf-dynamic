@@ -36,6 +36,8 @@ import com.google.protobuf.DynamicMessage;
  */
 public class DynamicSchema
 {
+	// --- public static ---
+
 	/**
 	 * Creates a new dynamic schema builder
 	 * 
@@ -81,11 +83,13 @@ public class DynamicSchema
 		}
 	}
 
+	// --- public ---
+
 	/**
-	 * Creates a new dynamic message builder for the given message name
+	 * Creates a new dynamic message builder for the given message type
 	 * 
 	 * @param msgTypeName the message type name
-	 * @return the message builder (null if message name not found)
+	 * @return the message builder (null if not found)
 	 */
 	public DynamicMessage.Builder newMessageBuilder(String msgTypeName) {
 		Descriptor msgType = mMsgDescriptorMap.get(msgTypeName);
@@ -93,6 +97,23 @@ public class DynamicSchema
 		return DynamicMessage.newBuilder(msgType);
 	}
 
+	/**
+	 * Gets the protobuf message descriptor for the given message type
+	 * 
+	 * @param msgTypeName the message type name
+	 * @return the message descriptor (null if not found)
+	 */
+	public Descriptor getMessageDescriptor(String msgTypeName) {
+		return mMsgDescriptorMap.get(msgTypeName);
+	}
+
+	/**
+	 * Gets the protobuf enum value for the given enum type and name
+	 * 
+	 * @param enumTypeName the enum type name
+	 * @param enumName the enum name
+	 * @return the enum value descriptor (null if not found)
+	 */
 	public EnumValueDescriptor getEnum(String enumTypeName, String enumName) {
 		EnumDescriptor enumType = mEnumDescriptorMap.get(enumTypeName);
 		if (enumType == null) return null;
@@ -100,13 +121,16 @@ public class DynamicSchema
 	}
 
 	/**
-	 * Gets the protobuf message descriptor for the given message name
+	 * Gets the protobuf enum value for the given enum type and number
 	 * 
-	 * @param msgTypeName the message type name
-	 * @return the message descriptor (null if message name not found)
+	 * @param enumTypeName the enum type name
+	 * @param enumNumber the enum number
+	 * @return the enum value descriptor (null if not found)
 	 */
-	public Descriptor getMessageDescriptor(String msgTypeName) {
-		return mMsgDescriptorMap.get(msgTypeName);
+	public EnumValueDescriptor getEnum(String enumTypeName, int enumNumber) {
+		EnumDescriptor enumType = mEnumDescriptorMap.get(enumTypeName);
+		if (enumType == null) return null;
+		return enumType.findValueByNumber(enumNumber);
 	}
 
 	/**
@@ -132,12 +156,8 @@ public class DynamicSchema
 				+ mFileDesc.toProto().toString();
 	}
 
-	/**
-	 * Creates a dynamic schema
-	 * 
-	 * @param fileDescProto the protobuf file descriptor proto
-	 * @throws DescriptorValidationException
-	 */
+	// --- private ---
+
 	private DynamicSchema(FileDescriptorProto fileDescProto) throws DescriptorValidationException {
 		// TODO: full descriptorSet
 		mFileDesc = FileDescriptor.buildFrom(fileDescProto, new FileDescriptor[0]);
@@ -168,6 +188,8 @@ public class DynamicSchema
 	 */
 	public static class Builder
 	{
+		// --- public ---
+
 		/**
 		 * Builds a dynamic schema
 		 * 
@@ -189,7 +211,7 @@ public class DynamicSchema
 		}
 
 		public Builder addMessageDefinition(MessageDefinition msgDef) {
-			mFileDescProtoBuilder.addMessageType(msgDef.getMsgType());
+			mFileDescProtoBuilder.addMessageType(msgDef.getMessageType());
 			return this;
 		}
 
@@ -204,10 +226,12 @@ public class DynamicSchema
 			return this;
 		}
 
+		// --- private ---
+		
 		private Builder() {
 			mFileDescProtoBuilder = FileDescriptorProto.newBuilder();
 		}
 
-		FileDescriptorProto.Builder mFileDescProtoBuilder;
+		private FileDescriptorProto.Builder mFileDescProtoBuilder;
 	}
 }
