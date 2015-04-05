@@ -111,7 +111,7 @@ public class DynamicSchemaTest
 				.build();
 		DynamicMessage phoneMsg2 = schema.newMessageBuilder("Person.PhoneNumber")
 				.setField(phoneDesc.findFieldByName("number"), "+44-222")
-				.setField(phoneDesc.findFieldByName("type"), schema.getEnum("Person.PhoneType", "WORK"))
+				.setField(phoneDesc.findFieldByName("type"), schema.getEnumValue("Person.PhoneType", "WORK"))
 				.build();
 		
 		Descriptor personDesc = schema.getMessageDescriptor("Person");
@@ -144,6 +144,28 @@ public class DynamicSchemaTest
 	}
 
 	/**
+	 * testSchemaMerge - schema merging
+	 */
+	@Test
+	public void testSchemaMerge() throws Exception {
+		log("--- testSchemaMerge ---");
+		
+		DynamicSchema.Builder schemaBuilder1 = DynamicSchema.newBuilder().setName("Schema1.proto").setPackage("package1");
+		schemaBuilder1.addMessageDefinition(MessageDefinition.newBuilder("Msg1").build());
+		
+		DynamicSchema.Builder schemaBuilder2 = DynamicSchema.newBuilder().setName("Schema2.proto").setPackage("package2");
+		schemaBuilder2.addMessageDefinition(MessageDefinition.newBuilder("Msg2").build());
+		
+		schemaBuilder1.addSchema(schemaBuilder2.build());
+		DynamicSchema schema1 = schemaBuilder1.build(); 
+		log(schema1);
+		
+		// schema1 should contain both Msg1 and Msg2
+		Assert.assertNotNull(schema1.getMessageDescriptor("Msg1"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("Msg2"));
+	}
+
+	/**
 	 * testSchemaSerialization - serialization, deserialization, protoc output parsing 
 	 */
 	@Test
@@ -157,6 +179,7 @@ public class DynamicSchemaTest
 		byte[] descBuf = schema1.toByteArray(); // serialize
 		DynamicSchema schema2 = DynamicSchema.parseFrom(descBuf); // deserialize
 		
+		// Should be equivalent
 		Assert.assertEquals(schema1.toString(), schema2.toString());
 	}
 

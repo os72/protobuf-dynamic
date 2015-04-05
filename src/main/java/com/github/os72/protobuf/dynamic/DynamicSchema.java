@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorSet;
@@ -48,21 +51,6 @@ public class DynamicSchema
 	}
 
 	/**
-	 * Parses a serialized schema descriptor (from byte array)
-	 * 
-	 * @param schemaDescBuf the descriptor byte array
-	 * @return the schema object
-	 * @throws DescriptorValidationException
-	 * @throws IOException
-	 */
-	public static DynamicSchema parseFrom(byte[] schemaDescBuf) throws DescriptorValidationException, IOException {
-		// TODO: hold full fdSet, resolve dependencies, populate descriptorMap
-		FileDescriptorSet fdSet = FileDescriptorSet.parseFrom(schemaDescBuf);
-		FileDescriptorProto fileDescProto = fdSet.getFileList().get(0);
-		return new DynamicSchema(fileDescProto);
-	}
-
-	/**
 	 * Parses a serialized schema descriptor (from input stream; closes the stream)
 	 * 
 	 * @param schemaDescIn the descriptor input stream
@@ -81,6 +69,18 @@ public class DynamicSchema
 		finally {
 			schemaDescIn.close();
 		}
+	}
+
+	/**
+	 * Parses a serialized schema descriptor (from byte array)
+	 * 
+	 * @param schemaDescBuf the descriptor byte array
+	 * @return the schema object
+	 * @throws DescriptorValidationException
+	 * @throws IOException
+	 */
+	public static DynamicSchema parseFrom(byte[] schemaDescBuf) throws DescriptorValidationException, IOException {
+		return new DynamicSchema(FileDescriptorSet.parseFrom(schemaDescBuf));
 	}
 
 	// --- public ---
@@ -114,7 +114,7 @@ public class DynamicSchema
 	 * @param enumName the enum name
 	 * @return the enum value descriptor (null if not found)
 	 */
-	public EnumValueDescriptor getEnum(String enumTypeName, String enumName) {
+	public EnumValueDescriptor getEnumValue(String enumTypeName, String enumName) {
 		EnumDescriptor enumType = mEnumDescriptorMap.get(enumTypeName);
 		if (enumType == null) return null;
 		return enumType.findValueByName(enumName);
@@ -127,7 +127,7 @@ public class DynamicSchema
 	 * @param enumNumber the enum number
 	 * @return the enum value descriptor (null if not found)
 	 */
-	public EnumValueDescriptor getEnum(String enumTypeName, int enumNumber) {
+	public EnumValueDescriptor getEnumValue(String enumTypeName, int enumNumber) {
 		EnumDescriptor enumType = mEnumDescriptorMap.get(enumTypeName);
 		if (enumType == null) return null;
 		return enumType.findValueByNumber(enumNumber);
@@ -139,10 +139,7 @@ public class DynamicSchema
 	 * @return the serialized schema descriptor
 	 */
 	public byte[] toByteArray() {
-		// TODO: full descriptorSet
-		FileDescriptorSet.Builder fdSetBuilder = FileDescriptorSet.newBuilder();
-		fdSetBuilder.addFile(mFileDesc.toProto());
-		return fdSetBuilder.build().toByteArray();
+		return mFileDescSet.toByteArray();
 	}
 
 	/**
@@ -151,20 +148,28 @@ public class DynamicSchema
 	 * @return the schema string
 	 */
 	public String toString() {
-		// TODO: full descriptorSet
-		return "types: " + mMsgDescriptorMap.keySet() + " enums: " + mEnumDescriptorMap.keySet() + "\n"
-				+ mFileDesc.toProto().toString();
+		Set<String> msgTypes = new TreeSet<String>(mMsgDescriptorMap.keySet());
+		Set<String> enumTypes = new TreeSet<String>(mEnumDescriptorMap.keySet());
+		return "types: " + msgTypes + " enums: " + enumTypes + "\n" + mFullNameMap + "\n" + mFileDescSet;
 	}
 
 	// --- private ---
 
-	private DynamicSchema(FileDescriptorProto fileDescProto) throws DescriptorValidationException {
-		// TODO: full descriptorSet
-		mFileDesc = FileDescriptor.buildFrom(fileDescProto, new FileDescriptor[0]);
-		for (Descriptor msgType : mFileDesc.getMessageTypes()) addMessageType(msgType, null);
+	private DynamicSchema(FileDescriptorSet fileDescSet) throws DescriptorValidationException {
+		// TODO: resolve dependencies
+		//
+		mFileDescSet = fileDescSet;
+		for (FileDescriptorProto fileDescProto : fileDescSet.getFileList()) {
+			FileDescriptor fileDesc = FileDescriptor.buildFrom(fileDescProto, new FileDescriptor[0]);
+			for (Descriptor msgType : fileDesc.getMessageTypes()) addMessageType(msgType, null);			
+		}
 	}
 
 	private void addMessageType(Descriptor msgType, String scope) {
+		// TODO: check name conflicts, full name, etc
+		//
+		mFullNameMap.put(msgType.getName(), msgType.getFullName());
+		
 		String msgTypeName = (scope == null ? msgType.getName() : scope + "." + msgType.getName());
 		mMsgDescriptorMap.put(msgTypeName, msgType);
 		for (Descriptor nestedType : msgType.getNestedTypes()) addMessageType(nestedType, msgTypeName);
@@ -176,12 +181,10 @@ public class DynamicSchema
 		mEnumDescriptorMap.put(enumTypeName, enumType);
 	}
 
-	// TODO: full descriptorSet
-	private FileDescriptor mFileDesc;
 	private FileDescriptorSet mFileDescSet;
-
 	private Map<String,Descriptor> mMsgDescriptorMap = new HashMap<String,Descriptor>();
 	private Map<String,EnumDescriptor> mEnumDescriptorMap = new HashMap<String,EnumDescriptor>();
+	private Map<String,String> mFullNameMap = new TreeMap<String,String>();
 
 	/**
 	 * DynamicSchema.Builder
@@ -197,7 +200,10 @@ public class DynamicSchema
 		 * @throws DescriptorValidationException
 		 */
 		public DynamicSchema build() throws DescriptorValidationException {
-			return new DynamicSchema(mFileDescProtoBuilder.build());
+			FileDescriptorSet.Builder fileDescSetBuilder = FileDescriptorSet.newBuilder();
+			fileDescSetBuilder.addFile(mFileDescProtoBuilder.build());
+			fileDescSetBuilder.mergeFrom(mFileDescSetBuilder.build());
+			return new DynamicSchema(fileDescSetBuilder.build());
 		}
 
 		public Builder setName(String name) {
@@ -220,9 +226,8 @@ public class DynamicSchema
 			return this;
 		}
 
-		// TODO
 		public Builder addSchema(DynamicSchema schema) {
-			// merge descriptorSets
+			mFileDescSetBuilder.mergeFrom(schema.mFileDescSet);
 			return this;
 		}
 
@@ -230,8 +235,10 @@ public class DynamicSchema
 		
 		private Builder() {
 			mFileDescProtoBuilder = FileDescriptorProto.newBuilder();
+			mFileDescSetBuilder = FileDescriptorSet.newBuilder();
 		}
 
 		private FileDescriptorProto.Builder mFileDescProtoBuilder;
+		private FileDescriptorSet.Builder mFileDescSetBuilder;
 	}
 }
