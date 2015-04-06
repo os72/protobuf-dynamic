@@ -1,7 +1,7 @@
 protobuf-dynamic
 ================
 
-Protocol Buffers Dynamic Schema - create protobuf schemas on the fly, no protoc compiler required
+Protocol Buffers Dynamic Schema - create protobuf schemas programmatically, no protoc compiler required
 
 Library to simplify working with the Protocol Buffers reflection mechanism:
 * Dynamic schema creation - at runtime
