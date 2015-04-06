@@ -1,13 +1,15 @@
 protobuf-dynamic
 ================
 
-Protocol Buffers Dynamic Schema - *coming soon*
+Protocol Buffers Dynamic Schema - create protobuf schemas on the fly, no protoc compiler required
 
 Library to simplify working with the Protocol Buffers reflection mechanism:
 * Dynamic schema creation - at runtime
 * Dynamic message creation from schema
 * Schema serialization, deserialization
 * Schema parsing from protoc compiler output
+
+See the Protocol Buffers site for details: https://github.com/google/protobuf
 
 #### Usage:
 ```java
@@ -39,6 +41,6 @@ DynamicMessage msg = msgBuilder
 <dependency>
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.9-SNAPSHOT</version>
 </dependency>
 ```
