@@ -127,10 +127,10 @@ public class DynamicSchemaTest
 		phoneMsg1 = (DynamicMessage)personMsg.getRepeatedField(personDesc.findFieldByName("phone"), 0);
 		phoneMsg2 = (DynamicMessage)personMsg.getRepeatedField(personDesc.findFieldByName("phone"), 1);
 		
-		String phoneNumber1 = (String)phoneMsg1.getField(phoneDesc.findFieldByName("number"));
-		EnumValueDescriptor phoneType1 = (EnumValueDescriptor)phoneMsg1.getField(phoneDesc.findFieldByName("type"));
-		
+		String phoneNumber1 = (String)phoneMsg1.getField(phoneDesc.findFieldByName("number"));		
 		String phoneNumber2 = (String)phoneMsg2.getField(phoneDesc.findFieldByName("number"));
+		
+		EnumValueDescriptor phoneType1 = (EnumValueDescriptor)phoneMsg1.getField(phoneDesc.findFieldByName("type"));
 		EnumValueDescriptor phoneType2 = (EnumValueDescriptor)phoneMsg2.getField(phoneDesc.findFieldByName("type"));
 		
 		log(phoneNumber1 + ", " + phoneType1.getName());
