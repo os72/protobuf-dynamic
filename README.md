@@ -1,9 +1,10 @@
 protobuf-dynamic
 ================
 
-Protocol Buffers Dynamic Schema - create protobuf schemas programmatically, no protoc compiler required
+Protocol Buffers Dynamic Schema - create protobuf schemas programmatically.
+Available on Maven Central: http://central.maven.org/maven2/com/github/os72/protobuf-dynamic/
 
-Library to simplify working with the Protocol Buffers reflection mechanism:
+Library to simplify working with the Protocol Buffers reflection mechanism, no protoc compiler required:
 * Dynamic schema creation - at runtime
 * Dynamic message creation from schema
 * Schema serialization, deserialization
