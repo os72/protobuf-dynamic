@@ -7,6 +7,7 @@ Available on Maven Central: http://central.maven.org/maven2/com/github/os72/prot
 Library to simplify working with the Protocol Buffers reflection mechanism, no protoc compiler required:
 * Dynamic schema creation - at runtime
 * Dynamic message creation from schema
+* Schema merging
 * Schema serialization, deserialization
 * Schema parsing from protoc compiler output
 
