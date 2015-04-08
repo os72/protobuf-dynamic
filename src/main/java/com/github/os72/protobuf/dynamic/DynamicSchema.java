@@ -20,9 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
@@ -92,7 +92,7 @@ public class DynamicSchema
 	 * @return the message builder (null if not found)
 	 */
 	public DynamicMessage.Builder newMessageBuilder(String msgTypeName) {
-		Descriptor msgType = mMsgDescriptorMap.get(msgTypeName);
+		Descriptor msgType = getMessageDescriptor(msgTypeName);
 		if (msgType == null) return null;
 		return DynamicMessage.newBuilder(msgType);
 	}
@@ -104,33 +104,47 @@ public class DynamicSchema
 	 * @return the message descriptor (null if not found)
 	 */
 	public Descriptor getMessageDescriptor(String msgTypeName) {
-		return mMsgDescriptorMap.get(msgTypeName);
+		Descriptor msgType = mMsgDescriptorMapShort.get(msgTypeName);
+		if (msgType == null) msgType = mMsgDescriptorMapFull.get(msgTypeName);
+		return msgType;
 	}
 
 	/**
-	 * Gets the protobuf enum value for the given enum type and name
+	 * Gets the enum value for the given enum type and name
 	 * 
 	 * @param enumTypeName the enum type name
 	 * @param enumName the enum name
 	 * @return the enum value descriptor (null if not found)
 	 */
 	public EnumValueDescriptor getEnumValue(String enumTypeName, String enumName) {
-		EnumDescriptor enumType = mEnumDescriptorMap.get(enumTypeName);
+		EnumDescriptor enumType = getEnumDescriptor(enumTypeName);
 		if (enumType == null) return null;
 		return enumType.findValueByName(enumName);
 	}
 
 	/**
-	 * Gets the protobuf enum value for the given enum type and number
+	 * Gets the enum value for the given enum type and number
 	 * 
 	 * @param enumTypeName the enum type name
 	 * @param enumNumber the enum number
 	 * @return the enum value descriptor (null if not found)
 	 */
 	public EnumValueDescriptor getEnumValue(String enumTypeName, int enumNumber) {
-		EnumDescriptor enumType = mEnumDescriptorMap.get(enumTypeName);
+		EnumDescriptor enumType = getEnumDescriptor(enumTypeName);
 		if (enumType == null) return null;
 		return enumType.findValueByNumber(enumNumber);
+	}
+
+	/**
+	 * Gets the protobuf enum descriptor for the given enum type
+	 * 
+	 * @param enumTypeName the enum type name
+	 * @return the enum descriptor (null if not found)
+	 */
+	public EnumDescriptor getEnumDescriptor(String enumTypeName) {
+		EnumDescriptor enumType = mEnumDescriptorMapShort.get(enumTypeName);
+		if (enumType == null) enumType = mEnumDescriptorMapFull.get(enumTypeName);
+		return enumType;
 	}
 
 	/**
@@ -148,9 +162,9 @@ public class DynamicSchema
 	 * @return the schema string
 	 */
 	public String toString() {
-		Set<String> msgTypes = new TreeSet<String>(mMsgDescriptorMap.keySet());
-		Set<String> enumTypes = new TreeSet<String>(mEnumDescriptorMap.keySet());
-		return "types: " + msgTypes + " enums: " + enumTypes + "\n" + mFullNameMap + "\n" + mFileDescSet;
+		Set<String> msgTypes = new TreeSet<String>(mMsgDescriptorMapFull.keySet());
+		Set<String> enumTypes = new TreeSet<String>(mEnumDescriptorMapFull.keySet());
+		return "types: " + msgTypes + "\nenums: " + enumTypes + "\n" + mFileDescSet;
 	}
 
 	// --- private ---
@@ -159,32 +173,49 @@ public class DynamicSchema
 		// TODO: resolve dependencies
 		//
 		mFileDescSet = fileDescSet;
+		
+		Set<String> msgDupes = new HashSet<String>();
+		Set<String> enumDupes = new HashSet<String>();
 		for (FileDescriptorProto fileDescProto : fileDescSet.getFileList()) {
 			FileDescriptor fileDesc = FileDescriptor.buildFrom(fileDescProto, new FileDescriptor[0]);
-			for (Descriptor msgType : fileDesc.getMessageTypes()) addMessageType(msgType, null);			
+			for (Descriptor msgType : fileDesc.getMessageTypes()) addMessageType(msgType, null, msgDupes, enumDupes);			
+			for (EnumDescriptor enumType : fileDesc.getEnumTypes()) addEnumType(enumType, null, enumDupes);			
 		}
-	}
-
-	private void addMessageType(Descriptor msgType, String scope) {
-		// TODO: check name conflicts, full name, etc
-		//
-		mFullNameMap.put(msgType.getName(), msgType.getFullName());
 		
-		String msgTypeName = (scope == null ? msgType.getName() : scope + "." + msgType.getName());
-		mMsgDescriptorMap.put(msgTypeName, msgType);
-		for (Descriptor nestedType : msgType.getNestedTypes()) addMessageType(nestedType, msgTypeName);
-		for (EnumDescriptor enumType : msgType.getEnumTypes()) addEnumType(enumType, msgTypeName);
+		for (String msgName : msgDupes) mMsgDescriptorMapShort.remove(msgName);
+		for (String enumName : enumDupes) mEnumDescriptorMapShort.remove(enumName);
 	}
 
-	private void addEnumType(EnumDescriptor enumType, String scope) {
-		String enumTypeName = (scope == null ? enumType.getName() : scope + "." + enumType.getName());
-		mEnumDescriptorMap.put(enumTypeName, enumType);
+	private void addMessageType(Descriptor msgType, String scope, Set<String> msgDupes, Set<String> enumDupes) {
+		String msgTypeNameFull = msgType.getFullName();
+		String msgTypeNameShort = (scope == null ? msgType.getName() : scope + "." + msgType.getName());
+		
+		if (mMsgDescriptorMapFull.containsKey(msgTypeNameFull)) throw new IllegalArgumentException("duplicate name: " + msgTypeNameFull);
+		if (mMsgDescriptorMapShort.containsKey(msgTypeNameShort)) msgDupes.add(msgTypeNameShort);
+		
+		mMsgDescriptorMapFull.put(msgTypeNameFull, msgType);
+		mMsgDescriptorMapShort.put(msgTypeNameShort, msgType);
+		
+		for (Descriptor nestedType : msgType.getNestedTypes()) addMessageType(nestedType, msgTypeNameShort, msgDupes, enumDupes);
+		for (EnumDescriptor enumType : msgType.getEnumTypes()) addEnumType(enumType, msgTypeNameShort, enumDupes);
+	}
+
+	private void addEnumType(EnumDescriptor enumType, String scope, Set<String> enumDupes) {
+		String enumTypeNameFull = enumType.getFullName();
+		String enumTypeNameShort = (scope == null ? enumType.getName() : scope + "." + enumType.getName());
+		
+		if (mEnumDescriptorMapFull.containsKey(enumTypeNameFull)) throw new IllegalArgumentException("duplicate name: " + enumTypeNameFull);
+		if (mEnumDescriptorMapShort.containsKey(enumTypeNameShort)) enumDupes.add(enumTypeNameShort);
+		
+		mEnumDescriptorMapFull.put(enumTypeNameFull, enumType);
+		mEnumDescriptorMapShort.put(enumTypeNameShort, enumType);
 	}
 
 	private FileDescriptorSet mFileDescSet;
-	private Map<String,Descriptor> mMsgDescriptorMap = new HashMap<String,Descriptor>();
-	private Map<String,EnumDescriptor> mEnumDescriptorMap = new HashMap<String,EnumDescriptor>();
-	private Map<String,String> mFullNameMap = new TreeMap<String,String>();
+	private Map<String,Descriptor> mMsgDescriptorMapFull = new HashMap<String,Descriptor>();
+	private Map<String,Descriptor> mMsgDescriptorMapShort = new HashMap<String,Descriptor>();
+	private Map<String,EnumDescriptor> mEnumDescriptorMapFull = new HashMap<String,EnumDescriptor>();
+	private Map<String,EnumDescriptor> mEnumDescriptorMapShort = new HashMap<String,EnumDescriptor>();
 
 	/**
 	 * DynamicSchema.Builder

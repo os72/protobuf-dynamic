@@ -163,6 +163,31 @@ public class DynamicSchemaTest
 		// schema1 should contain both Msg1 and Msg2
 		Assert.assertNotNull(schema1.getMessageDescriptor("Msg1"));
 		Assert.assertNotNull(schema1.getMessageDescriptor("Msg2"));
+		
+		DynamicSchema.Builder schemaBuilder3 = DynamicSchema.newBuilder().setName("Schema3.proto").setPackage("package3");
+		schemaBuilder3.addMessageDefinition(MessageDefinition.newBuilder("Msg1").build()); // Msg1 to force collision
+		schemaBuilder1.addSchema(schemaBuilder3.build());
+		schema1 = schemaBuilder1.build(); 
+		log(schema1);
+		
+		// Msg1 now ambiguous, must fully qualify name (package1, package3); Msg2 still unique
+		Assert.assertNull(schema1.getMessageDescriptor("Msg1"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("Msg2"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("package1.Msg1"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("package2.Msg2"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("package3.Msg1"));
+		
+		// Trying to add duplicate name (fully qualified) should throw exception
+		IllegalArgumentException ex = null;
+		try {
+			schemaBuilder1.addSchema(schemaBuilder3.build());
+			schema1 = schemaBuilder1.build(); 			
+		}
+		catch (IllegalArgumentException e) {
+			log("expected: " + e);
+			ex = e;
+		}
+		Assert.assertNotNull(ex);
 	}
 
 	/**
