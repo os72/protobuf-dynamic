@@ -5,7 +5,7 @@
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
   <packaging>jar</packaging>
-  <version>0.9</version>
+  <version>0.9.1-SNAPSHOT</version>
   <name>protobuf-dynamic</name>
   <url>https://github.com/os72/protobuf-dynamic</url>
   <description>Protocol Buffers Dynamic Schema</description>
@@ -45,7 +45,7 @@
 		<version>2.4.1</version>
 	</dependency>
 
-    <!-- test -->
+	<!-- test -->
 	<dependency>
 		<groupId>junit</groupId>
 		<artifactId>junit</artifactId>
