@@ -197,7 +197,7 @@ public class DynamicSchemaTest
 	public void testSchemaSerialization() throws Exception {
 		log("--- testSchemaSerialization ---");
 		
-		// deserialize
+		// Read protoc compiler output (deserialize)
 		DynamicSchema schema1 = DynamicSchema.parseFrom(new FileInputStream("src/test/resources/PersonSchema.desc"));
 		log(schema1);
 		
@@ -206,6 +206,26 @@ public class DynamicSchemaTest
 		
 		// Should be equivalent
 		Assert.assertEquals(schema1.toString(), schema2.toString());
+	}
+
+	/**
+	 * testSchemaDependency - nested dependencies (imports)
+	 */
+	@Test
+	public void testSchemaDependency() throws Exception {
+		log("--- testSchemaDependency ---");
+		
+		// Read protoc compiler output (deserialize)
+		DynamicSchema schema1 = DynamicSchema.parseFrom(new FileInputStream("src/test/resources/Schema1.desc"));
+		log(schema1);
+		
+		// schema1 should contain all imported types
+		Assert.assertNotNull(schema1.getMessageDescriptor("Msg1"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("Msg2"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("Msg3"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("Person"));
+		Assert.assertNotNull(schema1.getMessageDescriptor("Person.PhoneNumber"));
+		Assert.assertNotNull(schema1.getEnumDescriptor("Person.PhoneType"));
 	}
 
 	static void log(Object o) {

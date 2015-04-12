@@ -1,0 +1,10 @@
+option java_package = "com.github.os72.protobuf.dynamic";
+option java_outer_classname = "Schema1";
+
+import "PersonSchema.proto";
+import "Schema2.proto";
+
+message Msg1 {
+  optional Person person = 1;
+  optional Msg2 msg2 = 2;
+}
