@@ -19,8 +19,10 @@ package com.github.os72.protobuf.dynamic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -170,20 +172,50 @@ public class DynamicSchema
 	// --- private ---
 
 	private DynamicSchema(FileDescriptorSet fileDescSet) throws DescriptorValidationException {
-		// TODO: resolve dependencies
-		//
 		mFileDescSet = fileDescSet;
+		Map<String,FileDescriptor> fileDescMap = init(fileDescSet);
 		
 		Set<String> msgDupes = new HashSet<String>();
 		Set<String> enumDupes = new HashSet<String>();
-		for (FileDescriptorProto fileDescProto : fileDescSet.getFileList()) {
-			FileDescriptor fileDesc = FileDescriptor.buildFrom(fileDescProto, new FileDescriptor[0]);
+		for (FileDescriptor fileDesc : fileDescMap.values()) {
 			for (Descriptor msgType : fileDesc.getMessageTypes()) addMessageType(msgType, null, msgDupes, enumDupes);			
-			for (EnumDescriptor enumType : fileDesc.getEnumTypes()) addEnumType(enumType, null, enumDupes);			
+			for (EnumDescriptor enumType : fileDesc.getEnumTypes()) addEnumType(enumType, null, enumDupes);						
 		}
 		
 		for (String msgName : msgDupes) mMsgDescriptorMapShort.remove(msgName);
 		for (String enumName : enumDupes) mEnumDescriptorMapShort.remove(enumName);
+	}
+
+	private Map<String,FileDescriptor> init(FileDescriptorSet fileDescSet) throws DescriptorValidationException {
+		// check for dupes
+		Map<String,FileDescriptor> fileDescMap = new HashMap<String,FileDescriptor>();
+		for (FileDescriptorProto fdProto : fileDescSet.getFileList()) {
+			if (fileDescMap.containsKey(fdProto.getName()))  throw new IllegalArgumentException("duplicate name: " + fdProto.getName());
+			fileDescMap.put(fdProto.getName(), null);
+		}
+		fileDescMap.clear();
+		
+		// build FileDescriptors, resolve dependencies (imports) if any
+		while (fileDescMap.size() < fileDescSet.getFileCount()) {
+			for (FileDescriptorProto fdProto : fileDescSet.getFileList()) {
+				if (fileDescMap.containsKey(fdProto.getName())) continue;
+				
+				List<String> dependencyList = fdProto.getDependencyList();
+				List<FileDescriptor> fdList = new ArrayList<FileDescriptor>();
+				for (String depName : dependencyList) {
+					FileDescriptor fd = fileDescMap.get(depName);
+					if (fd != null) fdList.add(fd);
+				}
+				
+				if (fdList.size() == dependencyList.size()) { // dependencies resolved
+					FileDescriptor[] fds = new FileDescriptor[fdList.size()];
+					FileDescriptor fd = FileDescriptor.buildFrom(fdProto, fdList.toArray(fds));
+					fileDescMap.put(fdProto.getName(), fd);
+				}
+			}
+		}
+		
+		return fileDescMap;
 	}
 
 	private void addMessageType(Descriptor msgType, String scope, Set<String> msgDupes, Set<String> enumDupes) {
