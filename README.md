@@ -49,6 +49,6 @@ DynamicMessage msg = msgBuilder
 <dependency>
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
-  <version>0.9</version>
+  <version>0.9.1</version>
 </dependency>
 ```

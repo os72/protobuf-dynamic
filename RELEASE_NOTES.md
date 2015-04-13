@@ -1,7 +1,7 @@
 protobuf-dynamic release notes
 ==============================
 
-#### 0.9.1 (TBD)
+#### 0.9.1 (12-Apr-2015)
 * Support type lookup both by short and fully qualified names
 * Implement dependency resolution (schema imports)
 * Message name collision handling (during schema merging)
