@@ -4,7 +4,7 @@ protobuf-dynamic
 Protocol Buffers Dynamic Schema - create protobuf schemas programmatically.
 Available on Maven Central: http://central.maven.org/maven2/com/github/os72/protobuf-dynamic/
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.os72/protobuf-dynamic/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.os72/protobuf-dynamic)
+[![Maven Central](https://img.shields.io/badge/maven%20central-0.9.1-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|0.9.1|)
 
 ---
 
