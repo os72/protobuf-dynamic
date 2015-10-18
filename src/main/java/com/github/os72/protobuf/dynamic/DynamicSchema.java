@@ -19,6 +19,7 @@ package com.github.os72.protobuf.dynamic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -186,6 +187,7 @@ public class DynamicSchema
 		for (String enumName : enumDupes) mEnumDescriptorMapShort.remove(enumName);
 	}
 
+	@SuppressWarnings("unchecked")
 	private Map<String,FileDescriptor> init(FileDescriptorSet fileDescSet) throws DescriptorValidationException {
 		// check for dupes
 		Map<String,FileDescriptor> fileDescMap = new HashMap<String,FileDescriptor>();
@@ -200,7 +202,17 @@ public class DynamicSchema
 			for (FileDescriptorProto fdProto : fileDescSet.getFileList()) {
 				if (fileDescMap.containsKey(fdProto.getName())) continue;
 				
-				List<String> dependencyList = fdProto.getDependencyList();
+				// getDependencyList() signature was changed and broke compatibility in 2.6.1; workaround with reflection
+				//List<String> dependencyList = fdProto.getDependencyList();
+				List<String> dependencyList = null;
+				try {
+					Method m = fdProto.getClass().getMethod("getDependencyList", (Class<?>[])null);
+					dependencyList = (List<String>) m.invoke(fdProto, (Object[])null);
+				}
+				catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				
 				List<FileDescriptor> fdList = new ArrayList<FileDescriptor>();
 				for (String depName : dependencyList) {
 					FileDescriptor fd = fileDescMap.get(depName);
