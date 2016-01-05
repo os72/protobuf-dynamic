@@ -151,6 +151,24 @@ public class DynamicSchema
 	}
 
 	/**
+	 * Returns the message types registered with the schema
+	 * 
+	 * @return the set of message type names
+	 */
+	public Set<String> getMessageTypes() {
+		return new TreeSet<String>(mMsgDescriptorMapFull.keySet());
+	}
+
+	/**
+	 * Returns the enum types registered with the schema
+	 * 
+	 * @return the set of enum type names
+	 */
+	public Set<String> getEnumTypes() {
+		return new TreeSet<String>(mEnumDescriptorMapFull.keySet());
+	}
+
+	/**
 	 * Serializes the schema
 	 * 
 	 * @return the serialized schema descriptor
@@ -165,8 +183,8 @@ public class DynamicSchema
 	 * @return the schema string
 	 */
 	public String toString() {
-		Set<String> msgTypes = new TreeSet<String>(mMsgDescriptorMapFull.keySet());
-		Set<String> enumTypes = new TreeSet<String>(mEnumDescriptorMapFull.keySet());
+		Set<String> msgTypes = getMessageTypes();
+		Set<String> enumTypes = getEnumTypes();
 		return "types: " + msgTypes + "\nenums: " + enumTypes + "\n" + mFileDescSet;
 	}
 
