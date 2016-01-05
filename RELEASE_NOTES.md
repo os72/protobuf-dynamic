@@ -1,6 +1,9 @@
 protobuf-dynamic release notes
 ==============================
 
+#### 0.9.3 (5-Jan-2016)
+* DynamicSchema: getMessageTypes(), getEnumTypes()
+
 #### 0.9.2 (19-Oct-2015)
 * Fix compatibility issue with protobuf-java 2.6.1, 3.0.0
 
