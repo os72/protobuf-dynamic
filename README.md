@@ -2,7 +2,7 @@ protobuf-dynamic
 ================
 
 Protocol Buffers Dynamic Schema - create protobuf schemas programmatically.
-Available on Maven Central: http://central.maven.org/maven2/com/github/os72/protobuf-dynamic/
+Available on Maven Central: http://central.maven.org/maven2/com/github/os72/protobuf-dynamic/0.9.3/
 
 [![Maven Central](https://img.shields.io/badge/maven%20central-0.9.3-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|0.9.3|)
 
@@ -15,7 +15,7 @@ Supports the major protobuf features: primitive types, complex and nested types,
 * Schema merging
 * Schema serialization, deserialization
 * Schema parsing from protoc compiler output
-* Compatible with protobuf-java 2.4.1, 2.5.0, 2.6.1, 3.1.0
+* Compatible with protobuf-java 2.4.1, 2.5.0, 2.6.1, 3.4.0
 
 See the Protocol Buffers site for details: https://github.com/google/protobuf
 
