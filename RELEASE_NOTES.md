@@ -1,6 +1,9 @@
 protobuf-dynamic release notes
 ==============================
 
+#### 0.9.4 (14-Jan-2018)
+* Check for missing dependencies when parsing schema descriptor (issue #8)
+
 #### 0.9.3 (5-Jan-2016)
 * DynamicSchema: getMessageTypes(), getEnumTypes()
 

@@ -5,7 +5,7 @@
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
   <packaging>jar</packaging>
-  <version>0.9.4-SNAPSHOT</version>
+  <version>0.9.4</version>
   <name>protobuf-dynamic</name>
   <url>https://github.com/os72/protobuf-dynamic</url>
   <description>Protocol Buffers Dynamic Schema</description>
@@ -59,7 +59,7 @@
 		<plugin>
 			<groupId>com.github.os72</groupId>
 			<artifactId>protoc-jar-maven-plugin</artifactId>
-			<version>3.0.0-b1</version>
+			<version>3.5.0</version>
 			<executions>
 				<execution>
 					<phase>generate-test-sources</phase>
@@ -68,9 +68,6 @@
 					</goals>
 					<configuration>
 						<protocVersion>2.4.1</protocVersion>
-						<includeDirectories>
-							<include>src/test/resources</include>
-						</includeDirectories>
 						<inputDirectories>
 							<include>src/test/resources</include>
 						</inputDirectories>
