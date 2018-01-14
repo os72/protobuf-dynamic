@@ -208,10 +208,10 @@ public class DynamicSchema
 	@SuppressWarnings("unchecked")
 	private Map<String,FileDescriptor> init(FileDescriptorSet fileDescSet) throws DescriptorValidationException {
 		// check for dupes
-		Map<String,FileDescriptor> allFileDescMap = new HashMap<String,FileDescriptor>();
+		Set<String> allFdProtoNames = new HashSet<String>();
 		for (FileDescriptorProto fdProto : fileDescSet.getFileList()) {
-			if (allFileDescMap.containsKey(fdProto.getName())) throw new IllegalArgumentException("duplicate name: " + fdProto.getName());
-			allFileDescMap.put(fdProto.getName(), null);
+			if (allFdProtoNames.contains(fdProto.getName())) throw new IllegalArgumentException("duplicate name: " + fdProto.getName());
+			allFdProtoNames.add(fdProto.getName());
 		}
 		
 		// build FileDescriptors, resolve dependencies (imports) if any
@@ -233,7 +233,7 @@ public class DynamicSchema
 				
 				List<FileDescriptor> resolvedFdList = new ArrayList<FileDescriptor>();
 				for (String depName : dependencyList) {
-					if (!allFileDescMap.containsKey(depName)) throw new IllegalArgumentException("cannot resolve import " + depName + " in " + fdProto.getName());
+					if (!allFdProtoNames.contains(depName)) throw new IllegalArgumentException("cannot resolve import " + depName + " in " + fdProto.getName());
 					FileDescriptor fd = resolvedFileDescMap.get(depName);
 					if (fd != null) resolvedFdList.add(fd);
 				}
