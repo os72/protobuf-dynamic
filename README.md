@@ -15,7 +15,7 @@ Supports the major protobuf features: primitive types, complex and nested types,
 * Schema merging
 * Schema serialization, deserialization
 * Schema parsing from protoc compiler output
-* Compatible with protobuf-java 2.4.1, 2.5.0, 2.6.1, 3.4.0
+* Compatible with protobuf-java 2.4.1, 2.5.0, 2.6.1, 3.5.1
 
 See the Protocol Buffers site for details: https://github.com/google/protobuf
 
