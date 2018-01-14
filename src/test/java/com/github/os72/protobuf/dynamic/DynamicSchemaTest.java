@@ -228,6 +228,27 @@ public class DynamicSchemaTest
 		Assert.assertNotNull(schema1.getEnumDescriptor("Person.PhoneType"));
 	}
 
+	/**
+	 * testSchemaDependencyNoImports - missing nested dependencies (imports)
+	 */
+	@Test
+	public void testSchemaDependencyNoImports() throws Exception {
+		log("--- testSchemaDependencyNoImports ---");
+		
+		// Trying to parse schema descriptor with missing dependencies should throw exception
+		IllegalArgumentException ex = null;
+		try {
+			// Read protoc compiler output (deserialize)
+			DynamicSchema schema1 = DynamicSchema.parseFrom(new FileInputStream("src/test/resources/Schema1_no_imports.desc"));
+			log(schema1);
+		}
+		catch (IllegalArgumentException e) {
+			log("expected: " + e);
+			ex = e;
+		}
+		Assert.assertNotNull(ex);
+	}
+
 	static void log(Object o) {
 		System.out.println(o);
 	}

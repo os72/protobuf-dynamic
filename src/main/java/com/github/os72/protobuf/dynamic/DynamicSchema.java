@@ -208,17 +208,17 @@ public class DynamicSchema
 	@SuppressWarnings("unchecked")
 	private Map<String,FileDescriptor> init(FileDescriptorSet fileDescSet) throws DescriptorValidationException {
 		// check for dupes
-		Map<String,FileDescriptor> fileDescMap = new HashMap<String,FileDescriptor>();
+		Map<String,FileDescriptor> allFileDescMap = new HashMap<String,FileDescriptor>();
 		for (FileDescriptorProto fdProto : fileDescSet.getFileList()) {
-			if (fileDescMap.containsKey(fdProto.getName()))  throw new IllegalArgumentException("duplicate name: " + fdProto.getName());
-			fileDescMap.put(fdProto.getName(), null);
+			if (allFileDescMap.containsKey(fdProto.getName())) throw new IllegalArgumentException("duplicate name: " + fdProto.getName());
+			allFileDescMap.put(fdProto.getName(), null);
 		}
-		fileDescMap.clear();
 		
 		// build FileDescriptors, resolve dependencies (imports) if any
-		while (fileDescMap.size() < fileDescSet.getFileCount()) {
+		Map<String,FileDescriptor> resolvedFileDescMap = new HashMap<String,FileDescriptor>();
+		while (resolvedFileDescMap.size() < fileDescSet.getFileCount()) {
 			for (FileDescriptorProto fdProto : fileDescSet.getFileList()) {
-				if (fileDescMap.containsKey(fdProto.getName())) continue;
+				if (resolvedFileDescMap.containsKey(fdProto.getName())) continue;
 				
 				// getDependencyList() signature was changed and broke compatibility in 2.6.1; workaround with reflection
 				//List<String> dependencyList = fdProto.getDependencyList();
@@ -231,21 +231,22 @@ public class DynamicSchema
 					throw new RuntimeException(e);
 				}
 				
-				List<FileDescriptor> fdList = new ArrayList<FileDescriptor>();
+				List<FileDescriptor> resolvedFdList = new ArrayList<FileDescriptor>();
 				for (String depName : dependencyList) {
-					FileDescriptor fd = fileDescMap.get(depName);
-					if (fd != null) fdList.add(fd);
+					if (!allFileDescMap.containsKey(depName)) throw new IllegalArgumentException("cannot resolve import " + depName + " in " + fdProto.getName());
+					FileDescriptor fd = resolvedFileDescMap.get(depName);
+					if (fd != null) resolvedFdList.add(fd);
 				}
 				
-				if (fdList.size() == dependencyList.size()) { // dependencies resolved
-					FileDescriptor[] fds = new FileDescriptor[fdList.size()];
-					FileDescriptor fd = FileDescriptor.buildFrom(fdProto, fdList.toArray(fds));
-					fileDescMap.put(fdProto.getName(), fd);
+				if (resolvedFdList.size() == dependencyList.size()) { // dependencies resolved
+					FileDescriptor[] fds = new FileDescriptor[resolvedFdList.size()];
+					FileDescriptor fd = FileDescriptor.buildFrom(fdProto, resolvedFdList.toArray(fds));
+					resolvedFileDescMap.put(fdProto.getName(), fd);
 				}
 			}
 		}
 		
-		return fileDescMap;
+		return resolvedFileDescMap;
 	}
 
 	private void addMessageType(Descriptor msgType, String scope, Set<String> msgDupes, Set<String> enumDupes) {
