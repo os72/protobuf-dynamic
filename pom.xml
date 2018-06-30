@@ -5,7 +5,7 @@
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
   <packaging>jar</packaging>
-  <version>0.9.4</version>
+  <version>0.9.5-SNAPSHOT</version>
   <name>protobuf-dynamic</name>
   <url>https://github.com/os72/protobuf-dynamic</url>
   <description>Protocol Buffers Dynamic Schema</description>
@@ -37,12 +37,16 @@
 	<url>git@github.com:os72/protobuf-dynamic.git</url>
   </scm>
 
+  <properties>
+	<protobuf.version>2.4.1</protobuf.version>
+  </properties>
+
   <dependencies>
 	<!-- compile -->
 	<dependency>
 		<groupId>com.google.protobuf</groupId>
 		<artifactId>protobuf-java</artifactId>
-		<version>2.4.1</version>
+		<version>${protobuf.version}</version>
 	</dependency>
 
 	<!-- test -->
@@ -67,7 +71,7 @@
 						<goal>run</goal>
 					</goals>
 					<configuration>
-						<protocVersion>2.4.1</protocVersion>
+						<protocVersion>${protobuf.version}</protocVersion>
 						<inputDirectories>
 							<include>src/test/resources</include>
 						</inputDirectories>
@@ -86,6 +90,15 @@
 					</configuration>
 				</execution>
 			</executions>
+		</plugin>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-compiler-plugin</artifactId>
+		  <version>3.0</version>
+		  <configuration>
+			<source>1.5</source>
+			<target>1.5</target>
+		  </configuration>
 		</plugin>
 		<plugin>
 		  <groupId>org.apache.maven.plugins</groupId>
