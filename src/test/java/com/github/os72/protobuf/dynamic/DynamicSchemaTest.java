@@ -84,7 +84,8 @@ public class DynamicSchemaTest
 				.addField("required", "int32", "id", 1)		// required int32 id = 1
 				.addField("required", "string", "name", 2)	// required string name = 2
                 .addOneof("email")
-				.addField("optional", "string", "home_email", 3, null, true)	// optional string email = 3
+				.addField("optional", "string", "home_email", 3, null, true)	// optional string home_email = 3
+				.addField("optional", "string", "work_email", 4, null, true)	// optional string work_email = 4
 				.build();
 		
 		schemaBuilder.addMessageDefinition(msgDef);
