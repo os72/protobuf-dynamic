@@ -83,7 +83,7 @@ public class MessageDefinition
 			OneofDescriptorProto.Builder oneofBuilder = OneofDescriptorProto.newBuilder();
 			oneofBuilder.setName(name);
 			mMsgTypeBuilder.addOneofDecl(oneofBuilder.build());
-			oneofIndex++;
+			mOneofIndex++;
 			return this;
 		}
 
@@ -108,20 +108,19 @@ public class MessageDefinition
 			mMsgTypeBuilder.setName(msgTypeName);
 		}
 
-		private void addField(FieldDescriptorProto.Label label, String type, String name,
-							  int num, String defaultVal, boolean addToCurrentOneof) {
+		private void addField(FieldDescriptorProto.Label label, String type, String name, int num, String defaultVal, boolean addToCurrentOneof) {
 			FieldDescriptorProto.Builder fieldBuilder = FieldDescriptorProto.newBuilder();
 			fieldBuilder.setLabel(label);
 			FieldDescriptorProto.Type primType = sTypeMap.get(type);
 			if (primType != null) fieldBuilder.setType(primType); else fieldBuilder.setTypeName(type);
 			fieldBuilder.setName(name).setNumber(num);
 			if (defaultVal != null) fieldBuilder.setDefaultValue(defaultVal);
-			if (addToCurrentOneof && oneofIndex >= 0) fieldBuilder.setOneofIndex(oneofIndex);
+			if (addToCurrentOneof && mOneofIndex >= 0) fieldBuilder.setOneofIndex(mOneofIndex);
 			mMsgTypeBuilder.addField(fieldBuilder.build());
 		}
 
 		private DescriptorProto.Builder mMsgTypeBuilder;
-		private int oneofIndex = -1;
+		private int mOneofIndex = -1;
 	}
 
 	// --- private static ---
