@@ -19,8 +19,10 @@ package com.github.os72.protobuf.dynamic;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.DescriptorProtos.DescriptorProto;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
+import com.google.protobuf.DescriptorProtos.OneofDescriptorProto;
 
 /**
  * MessageDefinition
@@ -66,7 +68,22 @@ public class MessageDefinition
 		public Builder addField(String label, String type, String name, int num, String defaultVal) {
 			FieldDescriptorProto.Label protoLabel = sLabelMap.get(label);
 			if (protoLabel == null) throw new IllegalArgumentException("Illegal label: " + label);
-			addField(protoLabel, type, name, num, defaultVal);
+			addField(protoLabel, type, name, num, defaultVal, false);
+			return this;
+		}
+
+		public Builder addField(String label, String type, String name, int num, String defaultVal, boolean oneofField) {
+			FieldDescriptorProto.Label protoLabel = sLabelMap.get(label);
+			if (protoLabel == null) throw new IllegalArgumentException("Illegal label: " + label);
+			addField(protoLabel, type, name, num, defaultVal, oneofField);
+			return this;
+		}
+
+		public Builder addOneof(String name) {
+			OneofDescriptorProto.Builder oneofBuilder = OneofDescriptorProto.newBuilder();
+			oneofBuilder.setName(name);
+			mMsgTypeBuilder.addOneofDecl(oneofBuilder.build());
+			oneofIndex++;
 			return this;
 		}
 
@@ -91,17 +108,20 @@ public class MessageDefinition
 			mMsgTypeBuilder.setName(msgTypeName);
 		}
 
-		private void addField(FieldDescriptorProto.Label label, String type, String name, int num, String defaultVal) {
+		private void addField(FieldDescriptorProto.Label label, String type, String name,
+							  int num, String defaultVal, boolean addToCurrentOneof) {
 			FieldDescriptorProto.Builder fieldBuilder = FieldDescriptorProto.newBuilder();
 			fieldBuilder.setLabel(label);
 			FieldDescriptorProto.Type primType = sTypeMap.get(type);
 			if (primType != null) fieldBuilder.setType(primType); else fieldBuilder.setTypeName(type);
 			fieldBuilder.setName(name).setNumber(num);
 			if (defaultVal != null) fieldBuilder.setDefaultValue(defaultVal);
+			if (addToCurrentOneof && oneofIndex >= 0) fieldBuilder.setOneofIndex(oneofIndex);
 			mMsgTypeBuilder.addField(fieldBuilder.build());
 		}
 
 		private DescriptorProto.Builder mMsgTypeBuilder;
+		private int oneofIndex = -1;
 	}
 
 	// --- private static ---
