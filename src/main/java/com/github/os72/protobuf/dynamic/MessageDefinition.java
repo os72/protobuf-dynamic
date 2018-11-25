@@ -19,7 +19,6 @@ package com.github.os72.protobuf.dynamic;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.DescriptorProtos.DescriptorProto;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto;
 import com.google.protobuf.DescriptorProtos.OneofDescriptorProto;
@@ -68,23 +67,13 @@ public class MessageDefinition
 		public Builder addField(String label, String type, String name, int num, String defaultVal) {
 			FieldDescriptorProto.Label protoLabel = sLabelMap.get(label);
 			if (protoLabel == null) throw new IllegalArgumentException("Illegal label: " + label);
-			addField(protoLabel, type, name, num, defaultVal, false);
+			addField(protoLabel, type, name, num, defaultVal, null);
 			return this;
 		}
 
-		public Builder addField(String label, String type, String name, int num, String defaultVal, boolean oneofField) {
-			FieldDescriptorProto.Label protoLabel = sLabelMap.get(label);
-			if (protoLabel == null) throw new IllegalArgumentException("Illegal label: " + label);
-			addField(protoLabel, type, name, num, defaultVal, oneofField);
-			return this;
-		}
-
-		public Builder addOneof(String name) {
-			OneofDescriptorProto.Builder oneofBuilder = OneofDescriptorProto.newBuilder();
-			oneofBuilder.setName(name);
-			mMsgTypeBuilder.addOneofDecl(oneofBuilder.build());
-			mOneofIndex++;
-			return this;
+		public OneofBuilder addOneof(String oneofName) {
+			mMsgTypeBuilder.addOneofDecl(OneofDescriptorProto.newBuilder().setName(oneofName).build());
+			return new OneofBuilder(this, mOneofIndex++);
 		}
 
 		public Builder addMessageDefinition(MessageDefinition msgDef) {
@@ -108,19 +97,52 @@ public class MessageDefinition
 			mMsgTypeBuilder.setName(msgTypeName);
 		}
 
-		private void addField(FieldDescriptorProto.Label label, String type, String name, int num, String defaultVal, boolean addToCurrentOneof) {
+		private void addField(FieldDescriptorProto.Label label, String type, String name, int num, String defaultVal, OneofBuilder oneofBuilder) {
 			FieldDescriptorProto.Builder fieldBuilder = FieldDescriptorProto.newBuilder();
 			fieldBuilder.setLabel(label);
 			FieldDescriptorProto.Type primType = sTypeMap.get(type);
 			if (primType != null) fieldBuilder.setType(primType); else fieldBuilder.setTypeName(type);
 			fieldBuilder.setName(name).setNumber(num);
 			if (defaultVal != null) fieldBuilder.setDefaultValue(defaultVal);
-			if (addToCurrentOneof && mOneofIndex >= 0) fieldBuilder.setOneofIndex(mOneofIndex);
+			if (oneofBuilder != null) fieldBuilder.setOneofIndex(oneofBuilder.getIdx());
 			mMsgTypeBuilder.addField(fieldBuilder.build());
 		}
 
 		private DescriptorProto.Builder mMsgTypeBuilder;
-		private int mOneofIndex = -1;
+		private int mOneofIndex = 0;
+	}
+
+	/**
+	 * MessageDefinition.OneofBuilder
+	 */
+	public static class OneofBuilder
+	{
+		// --- public ---
+
+		public OneofBuilder addField(String type, String name, int num) {
+			return addField(type, name, num, null);
+		}
+		public OneofBuilder addField(String type, String name, int num, String defaultVal) {
+			mMsgBuilder.addField(FieldDescriptorProto.Label.LABEL_OPTIONAL, type, name, num, defaultVal, this);
+			return this;
+		}
+
+		public MessageDefinition.Builder msgDefBuilder() {
+			return mMsgBuilder;
+		}
+		public int getIdx() {
+			return mIdx;
+		}
+
+		// --- private ---
+
+		private OneofBuilder(MessageDefinition.Builder msgBuilder, int oneofIdx) {
+			mMsgBuilder = msgBuilder;
+			mIdx = oneofIdx;
+		}
+
+		private MessageDefinition.Builder mMsgBuilder;
+		private int mIdx;
 	}
 
 	// --- private static ---

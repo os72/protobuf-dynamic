@@ -84,9 +84,21 @@ public class DynamicSchemaTest
 				.addField("required", "int32", "id", 1)							// required int32 id = 1
 				.addField("required", "string", "name", 2)						// required string name = 2
 				.addOneof("email")												// oneof email
-				.addField("optional", "string", "home_email", 3, null, true)	// string home_email = 3
-				.addField("optional", "string", "work_email", 4, null, true)	// string work_email = 4
+					.addField("string", "home_email", 3)						// string home_email = 3
+					.addField("string", "work_email", 4)						// string work_email = 4
+					.msgDefBuilder()
 				.build();
+		
+		// Demo OneofBuilder
+		MessageDefinition.Builder msgDefBuilder = MessageDefinition.newBuilder("SomeOneofDef");
+		msgDefBuilder.addField("required", "int32", "id", 1);
+		MessageDefinition.OneofBuilder oneofBuilder1 = msgDefBuilder.addOneof("addr1");
+		MessageDefinition.OneofBuilder oneofBuilder2 = msgDefBuilder.addOneof("addr2");
+		oneofBuilder1.addField("string", "addr11", 11);
+		oneofBuilder1.addField("string", "addr12", 12);
+		oneofBuilder2.addField("string", "addr21", 21, "default21");
+		oneofBuilder2.addField("string", "addr22", 22, "default22");
+		schemaBuilder.addMessageDefinition(msgDefBuilder.build());
 		
 		schemaBuilder.addMessageDefinition(msgDef);
 		DynamicSchema schema = schemaBuilder.build();
