@@ -80,12 +80,12 @@ public class DynamicSchemaTest
 		DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
 		schemaBuilder.setName("PersonOneofSchemaDynamic.proto");
 		
-		MessageDefinition msgDef = MessageDefinition.newBuilder("PersonOneof")	// message Person
-				.addField("required", "int32", "id", 1)							// required int32 id = 1
-				.addField("required", "string", "name", 2)						// required string name = 2
-				.addOneof("email")												// oneof email
-					.addField("string", "home_email", 3)						// string home_email = 3
-					.addField("string", "work_email", 4)						// string work_email = 4
+		MessageDefinition msgDef = MessageDefinition.newBuilder("PersonOneof") // message Person
+				.addField("required", "int32", "id", 1)		// required int32 id = 1
+				.addField("required", "string", "name", 2)	// required string name = 2
+				.addOneof("email")							// oneof email
+					.addField("string", "home_email", 3)	// string home_email = 3
+					.addField("string", "work_email", 4)	// string work_email = 4
 					.msgDefBuilder()
 				.build();
 		
