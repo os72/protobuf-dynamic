@@ -78,14 +78,15 @@ public class DynamicSchemaTest
 		
 		// Create dynamic schema
 		DynamicSchema.Builder schemaBuilder = DynamicSchema.newBuilder();
-		schemaBuilder.setName("PersonOneofSchemaDynamic.proto");
+		schemaBuilder.setName("PersonSchemaDynamic.proto");
 		
-		MessageDefinition msgDef = MessageDefinition.newBuilder("PersonOneof") // message Person
+		MessageDefinition msgDef = MessageDefinition.newBuilder("Person") // message Person
 				.addField("required", "int32", "id", 1)		// required int32 id = 1
 				.addField("required", "string", "name", 2)	// required string name = 2
-				.addOneof("email")							// oneof email
-					.addField("string", "home_email", 3)	// string home_email = 3
-					.addField("string", "work_email", 4)	// string work_email = 4
+				.addField("optional", "string", "email", 3)	// optional string email = 3
+				.addOneof("address")						// oneof address
+					.addField("string", "home_addr", 4)		// string home_addr = 4
+					.addField("string", "work_addr", 5)		// string work_addr = 5
 					.msgDefBuilder()
 				.build();
 		
@@ -105,20 +106,20 @@ public class DynamicSchemaTest
 		log(schema);
 		
 		// Create dynamic message from schema
-		DynamicMessage.Builder msgBuilder = schema.newMessageBuilder("PersonOneof");
+		DynamicMessage.Builder msgBuilder = schema.newMessageBuilder("Person");
 		Descriptor msgDesc = msgBuilder.getDescriptorForType();
 		DynamicMessage msg = msgBuilder
 				.setField(msgDesc.findFieldByName("id"), 1)
 				.setField(msgDesc.findFieldByName("name"), "Alan Turing")
-                .setField(msgDesc.findFieldByName("home_email"), "at@sis.gov.uk")
+                .setField(msgDesc.findFieldByName("work_addr"), "85 Albert Embankment")
 				.build();
 		log(msg);
 		
 		// Create data object traditional way using generated code 
-		PersonOneofSchema.PersonOneof person = PersonOneofSchema.PersonOneof.newBuilder()
+		PersonSchema.Person person = PersonSchema.Person.newBuilder()
 				.setId(1)
 				.setName("Alan Turing")
-				.setHomeEmail("at@sis.gov.uk")
+				.setWorkAddr("85 Albert Embankment")
 				.build();
 		
 		// Should be equivalent

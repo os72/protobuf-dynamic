@@ -5,6 +5,10 @@ message Person {
   required int32 id = 1;
   required string name = 2;
   optional string email = 3;
+  oneof address {
+    string home_addr = 4;
+    string work_addr = 5;
+  }
 
   enum PhoneType {
     MOBILE = 0;
@@ -17,5 +21,5 @@ message Person {
     optional PhoneType type = 2 [default = HOME];
   }
 
-  repeated PhoneNumber phone = 4;
+  repeated PhoneNumber phone = 6;
 }
