@@ -2,8 +2,11 @@ protobuf-dynamic
 ================
 
 Protocol Buffers Dynamic Schema - create protobuf schemas programmatically.
-Available on Maven Central: http://central.maven.org/maven2/com/github/os72/protobuf-dynamic/0.9.4/
+Available on Maven Central:
+* https://repo.maven.apache.org/maven2/com/github/os72/protobuf-dynamic/1.0.0/
+* https://repo.maven.apache.org/maven2/com/github/os72/protobuf-dynamic/0.9.4/
 
+[![Maven Central](https://img.shields.io/badge/maven%20central-1.0.0-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|1.0.0|)
 [![Maven Central](https://img.shields.io/badge/maven%20central-0.9.4-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|0.9.4|)
 
 ---
@@ -15,7 +18,8 @@ Supports the major protobuf features: primitive types, complex and nested types,
 * Schema merging
 * Schema serialization, deserialization
 * Schema parsing from protoc compiler output
-* Compatible with protobuf-java 2.4.1, 2.5.0, 2.6.1, 3.5.1
+* Compatible with `protobuf-java` 2.6.1 or higher
+* (Version 0.9.x compatible with `protobuf-java` 2.4.1 or higher)
 
 See the Protocol Buffers site for details: https://github.com/google/protobuf
 
@@ -49,6 +53,6 @@ DynamicMessage msg = msgBuilder
 <dependency>
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
-  <version>0.9.4</version>
+  <version>1.0.0</version>
 </dependency>
 ```
