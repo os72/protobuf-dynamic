@@ -320,6 +320,16 @@ public class DynamicSchema
 			return this;
 		}
 
+		public Builder addDependency(String dependency) {
+			mFileDescProtoBuilder.addDependency(dependency);
+			return this;
+		}
+
+		public Builder addPublicDependency(int dependencyIndex) {
+			mFileDescProtoBuilder.addPublicDependency(dependencyIndex);
+			return this;
+		}
+
 		public Builder addSchema(DynamicSchema schema) {
 			mFileDescSetBuilder.mergeFrom(schema.mFileDescSet);
 			return this;
