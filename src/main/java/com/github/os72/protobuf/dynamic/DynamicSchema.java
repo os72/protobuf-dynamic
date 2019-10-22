@@ -325,8 +325,15 @@ public class DynamicSchema
 			return this;
 		}
 
-		public Builder addPublicDependency(int dependencyIndex) {
-			mFileDescProtoBuilder.addPublicDependency(dependencyIndex);
+		public Builder addPublicDependency(String dependency) {
+			for (int i = 0; i < mFileDescProtoBuilder.getDependencyCount(); i++) {
+				if (mFileDescProtoBuilder.getDependency(i).equals(dependency)) {
+					mFileDescProtoBuilder.addPublicDependency(i);
+					return this;
+				}
+			}
+			mFileDescProtoBuilder.addDependency(dependency);
+			mFileDescProtoBuilder.addPublicDependency(mFileDescProtoBuilder.getDependencyCount() - 1);
 			return this;
 		}
 
