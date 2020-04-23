@@ -1,6 +1,9 @@
 protobuf-dynamic release notes
 ==============================
 
+#### 1.0.1 (22-Apr-2020)
+* Make internal file descriptor of DynamicSchema accessible via get methods
+
 #### 1.0.0 (27-Nov-2018)
 * Oneof support (requires protobuf-java 2.6.1 or higher)
 
