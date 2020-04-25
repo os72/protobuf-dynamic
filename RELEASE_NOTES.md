@@ -3,6 +3,8 @@ protobuf-dynamic release notes
 
 #### 1.0.1, 0.9.5 (TBD)
 * Make the internal schema file descriptor set accessible (issue #14)
+* Add schema builder APIs to support adding dependencies (issue #12)
+* Remove reflection workaround, not needed since 1.0.0 spin-off (issue #13)
 
 #### 1.0.0 (27-Nov-2018)
 * Oneof support (requires protobuf-java 2.6.1 or higher)
