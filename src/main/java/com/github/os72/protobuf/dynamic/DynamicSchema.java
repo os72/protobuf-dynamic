@@ -329,6 +329,23 @@ public class DynamicSchema
 			return this;
 		}
 
+		public Builder addDependency(String dependency) {
+			mFileDescProtoBuilder.addDependency(dependency);
+			return this;
+		}
+
+		public Builder addPublicDependency(String dependency) {
+			for (int i = 0; i < mFileDescProtoBuilder.getDependencyCount(); i++) {
+				if (mFileDescProtoBuilder.getDependency(i).equals(dependency)) {
+					mFileDescProtoBuilder.addPublicDependency(i);
+					return this;
+				}
+			}
+			mFileDescProtoBuilder.addDependency(dependency);
+			mFileDescProtoBuilder.addPublicDependency(mFileDescProtoBuilder.getDependencyCount() - 1);
+			return this;
+		}
+
 		public Builder addSchema(DynamicSchema schema) {
 			mFileDescSetBuilder.mergeFrom(schema.mFileDescSet);
 			return this;
