@@ -19,7 +19,6 @@ package com.github.os72.protobuf.dynamic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -229,17 +228,7 @@ public class DynamicSchema
 			for (FileDescriptorProto fdProto : fileDescSet.getFileList()) {
 				if (resolvedFileDescMap.containsKey(fdProto.getName())) continue;
 				
-				// getDependencyList() signature was changed and broke compatibility in 2.6.1; workaround with reflection
-				//List<String> dependencyList = fdProto.getDependencyList();
-				List<String> dependencyList = null;
-				try {
-					Method m = fdProto.getClass().getMethod("getDependencyList", (Class<?>[])null);
-					dependencyList = (List<String>) m.invoke(fdProto, (Object[])null);
-				}
-				catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-				
+				List<String> dependencyList = fdProto.getDependencyList();
 				List<FileDescriptor> resolvedFdList = new ArrayList<FileDescriptor>();
 				for (String depName : dependencyList) {
 					if (!allFdProtoNames.contains(depName)) throw new IllegalArgumentException("cannot resolve import " + depName + " in " + fdProto.getName());
