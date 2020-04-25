@@ -169,6 +169,15 @@ public class DynamicSchema
 	}
 
 	/**
+	 * Returns the internal file descriptor set of this schema
+	 * 
+	 * @return the file descriptor set
+	 */
+	public FileDescriptorSet getFileDescriptorSet() {
+		return mFileDescSet;
+	}
+
+	/**
 	 * Serializes the schema
 	 * 
 	 * @return the serialized schema descriptor
@@ -279,26 +288,6 @@ public class DynamicSchema
 	private Map<String,Descriptor> mMsgDescriptorMapShort = new HashMap<String,Descriptor>();
 	private Map<String,EnumDescriptor> mEnumDescriptorMapFull = new HashMap<String,EnumDescriptor>();
 	private Map<String,EnumDescriptor> mEnumDescriptorMapShort = new HashMap<String,EnumDescriptor>();
-
-	public FileDescriptorSet getmFileDescSet() {
-		return mFileDescSet;
-	}
-
-	public Map<String, Descriptor> getmMsgDescriptorMapFull() {
-		return mMsgDescriptorMapFull;
-	}
-
-	public Map<String, Descriptor> getmMsgDescriptorMapShort() {
-		return mMsgDescriptorMapShort;
-	}
-
-	public Map<String, EnumDescriptor> getmEnumDescriptorMapFull() {
-		return mEnumDescriptorMapFull;
-	}
-
-	public Map<String, EnumDescriptor> getmEnumDescriptorMapShort() {
-		return mEnumDescriptorMapShort;
-	}
 
 	/**
 	 * DynamicSchema.Builder
