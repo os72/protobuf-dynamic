@@ -280,6 +280,26 @@ public class DynamicSchema
 	private Map<String,EnumDescriptor> mEnumDescriptorMapFull = new HashMap<String,EnumDescriptor>();
 	private Map<String,EnumDescriptor> mEnumDescriptorMapShort = new HashMap<String,EnumDescriptor>();
 
+	public FileDescriptorSet getmFileDescSet() {
+		return mFileDescSet;
+	}
+
+	public Map<String, Descriptor> getmMsgDescriptorMapFull() {
+		return mMsgDescriptorMapFull;
+	}
+
+	public Map<String, Descriptor> getmMsgDescriptorMapShort() {
+		return mMsgDescriptorMapShort;
+	}
+
+	public Map<String, EnumDescriptor> getmEnumDescriptorMapFull() {
+		return mEnumDescriptorMapFull;
+	}
+
+	public Map<String, EnumDescriptor> getmEnumDescriptorMapShort() {
+		return mEnumDescriptorMapShort;
+	}
+
 	/**
 	 * DynamicSchema.Builder
 	 */
