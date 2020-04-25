@@ -1,6 +1,12 @@
 protobuf-dynamic release notes
 ==============================
 
+#### 1.0.1, 0.9.5 (TBD)
+* Make the internal schema file descriptor set accessible (issue #14)
+
+#### 1.0.0 (27-Nov-2018)
+* Oneof support (requires protobuf-java 2.6.1 or higher)
+
 #### 0.9.4 (14-Jan-2018)
 * Check for missing dependencies when parsing schema descriptor (issue #8)
 

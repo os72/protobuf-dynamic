@@ -169,6 +169,15 @@ public class DynamicSchema
 	}
 
 	/**
+	 * Returns the internal file descriptor set of this schema
+	 * 
+	 * @return the file descriptor set
+	 */
+	public FileDescriptorSet getFileDescriptorSet() {
+		return mFileDescSet;
+	}
+
+	/**
 	 * Serializes the schema
 	 * 
 	 * @return the serialized schema descriptor
