@@ -1,7 +1,7 @@
 protobuf-dynamic release notes
 ==============================
 
-#### 1.0.1, 0.9.5 (TBD)
+#### 1.0.1, 0.9.5 (26-Apr-2020)
 * Make the internal schema file descriptor set accessible (issue #14)
 * Add schema builder APIs to support adding dependencies (issue #12)
 * Remove reflection workaround, not needed since 1.0.0 spin-off (issue #13)
