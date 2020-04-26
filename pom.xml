@@ -5,7 +5,7 @@
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
   <packaging>jar</packaging>
-  <version>0.9.5-SNAPSHOT</version>
+  <version>0.9.5</version>
   <name>protobuf-dynamic</name>
   <url>https://github.com/os72/protobuf-dynamic</url>
   <description>Protocol Buffers Dynamic Schema</description>
