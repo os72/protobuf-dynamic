@@ -3,11 +3,11 @@ protobuf-dynamic
 
 Protocol Buffers Dynamic Schema - create protobuf schemas programmatically.
 Available on Maven Central:
-* https://repo.maven.apache.org/maven2/com/github/os72/protobuf-dynamic/1.0.0/
-* https://repo.maven.apache.org/maven2/com/github/os72/protobuf-dynamic/0.9.4/
+* https://repo.maven.apache.org/maven2/com/github/os72/protobuf-dynamic/1.0.1/
+* https://repo.maven.apache.org/maven2/com/github/os72/protobuf-dynamic/0.9.5/
 
-[![Maven Central](https://img.shields.io/badge/maven%20central-1.0.0-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|1.0.0|)
-[![Maven Central](https://img.shields.io/badge/maven%20central-0.9.4-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|0.9.4|)
+[![Maven Central](https://img.shields.io/badge/maven%20central-1.0.1-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|1.0.1|)
+[![Maven Central](https://img.shields.io/badge/maven%20central-0.9.5-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|0.9.5|)
 
 ---
 
@@ -53,13 +53,13 @@ DynamicMessage msg = msgBuilder
 <dependency>
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 ```xml
 <dependency>
   <groupId>com.github.os72</groupId>
   <artifactId>protobuf-dynamic</artifactId>
-  <version>0.9.4</version>
+  <version>0.9.5</version>
 </dependency>
 ```
