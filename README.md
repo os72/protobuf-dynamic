@@ -8,6 +8,7 @@ Available on Maven Central:
 
 [![Maven Central](https://img.shields.io/badge/maven%20central-1.0.1-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|1.0.1|)
 [![Maven Central](https://img.shields.io/badge/maven%20central-0.9.5-brightgreen.svg)](http://search.maven.org/#artifactdetails|com.github.os72|protobuf-dynamic|0.9.5|)
+[![Join the chat at https://gitter.im/os72/community](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/os72/community)
 
 ---
 
